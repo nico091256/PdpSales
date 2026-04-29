@@ -6,10 +6,10 @@ export const profileApi = {
     apiClient.get<MeResponse>('/api/v1/auth/me').then((r) => r.data),
 
   getProfile: () =>
-    apiClient.get<ProfileDto>('/api/v1/profile').then((r) => r.data),
+    apiClient.get<ProfileDto>('/api/v1/profile/me').then((r) => r.data),
 
   updateProfile: (data: UpdateProfileRequest) =>
-    apiClient.put<ProfileDto>('/api/v1/profile', data).then((r) => r.data),
+    apiClient.put<ProfileDto>('/api/v1/profile/me', data).then((r) => r.data),
 
   uploadPhoto: (file: File) => {
     const formData = new FormData();
