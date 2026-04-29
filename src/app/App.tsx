@@ -19,6 +19,7 @@ const UsersPage = lazy(() => import('@pages/users/UsersPage'));
 const InvitationsPage = lazy(() => import('@pages/invitations/InvitationsPage'));
 const ProfilePage = lazy(() => import('@pages/profile/ProfilePage'));
 const SettingsPage = lazy(() => import('@pages/settings/SettingsPage'));
+const AcceptInvitePage = lazy(() => import('@pages/invitations/AcceptInvitePage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,8 +33,8 @@ const queryClient = new QueryClient({
 
 function PageLoader() {
   return (
-    <div className="flex h-full items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />
+    <div className="flex h-screen items-center justify-center bg-[var(--color-bg-primary)]">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-accent)] border-t-transparent shadow-glow" />
     </div>
   );
 }
@@ -47,6 +48,21 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+}
+
+// --- Role-Based Route Guard ---
+function RoleRoute({ children, roles }: { children: React.ReactNode, roles: string[] }) {
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  
+  if (!user?.role || !roles.includes(user.role)) {
+    // If user role is not allowed, redirect to their default dashboard
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 }
 
@@ -73,6 +89,14 @@ export function App() {
                 </PublicRoute>
               }
             />
+            <Route
+              path="/accept-invite"
+              element={
+                <PublicRoute>
+                  <AcceptInvitePage />
+                </PublicRoute>
+              }
+            />
 
             {/* Private Routes inside MainLayout */}
             <Route
@@ -84,15 +108,33 @@ export function App() {
               }
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
+              
+              {/* Common Routes */}
               <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="rankings" element={<RankingsPage />} />
               <Route path="appointments" element={<AppointmentsPage />} />
               <Route path="call-logs" element={<CallLogsPage />} />
               <Route path="alerts" element={<AlertsPage />} />
-              <Route path="rankings" element={<RankingsPage />} />
-              <Route path="users" element={<UsersPage />} />
-              <Route path="invitations" element={<InvitationsPage />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="settings" element={<SettingsPage />} />
+
+              {/* CEO & ROP Only Routes */}
+              <Route 
+                path="users" 
+                element={
+                  <RoleRoute roles={['CEO', 'ROP']}>
+                    <UsersPage />
+                  </RoleRoute>
+                } 
+              />
+              <Route 
+                path="invitations" 
+                element={
+                  <RoleRoute roles={['CEO', 'ROP']}>
+                    <InvitationsPage />
+                  </RoleRoute>
+                } 
+              />
             </Route>
 
             {/* Fallback */}
@@ -108,8 +150,10 @@ export function App() {
             background: '#1E2235',
             color: '#F1F5F9',
             border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '8px',
+            borderRadius: '12px',
             fontSize: '14px',
+            padding: '12px 16px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4)',
           },
           success: {
             iconTheme: { primary: '#10B981', secondary: '#fff' },

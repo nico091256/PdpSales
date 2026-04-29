@@ -8,17 +8,17 @@ import type {
 
 export const appointmentsApi = {
   getAll: (params?: { status?: AppointmentStatus }) =>
-    apiClient.get<AppointmentResponse[]>('/api/appointments', { params }).then((r) => r.data),
+    apiClient.get<AppointmentResponse[]>('/api/v1/appointments', { params }).then((r) => r.data),
 
   getMy: (params?: { from?: string; to?: string }) =>
-    apiClient.get<AppointmentResponse[]>('/api/appointments/my', { params }).then((r) => r.data),
+    apiClient.get<AppointmentResponse[]>('/api/v1/appointments/my', { params }).then((r) => r.data),
 
   approve: (id: string) =>
-    apiClient.post<AppointmentResponse>(`/api/appointments/${id}/approve`).then((r) => r.data),
+    apiClient.post<AppointmentResponse>(`/api/v1/appointments/${id}/approve`).then((r) => r.data),
 
   complete: (id: string, data: CompleteAppointmentRequest) =>
-    apiClient.post<AppointmentResponse>(`/api/appointments/${id}/complete`, data).then((r) => r.data),
+    apiClient.post<AppointmentResponse>(`/api/v1/appointments/${id}/complete`, data).then((r) => r.data),
 
   reject: (id: string, data: RejectAppointmentRequest) =>
-    apiClient.post<AppointmentResponse>(`/api/appointments/${id}/reject`, data).then((r) => r.data),
+    apiClient.post<AppointmentResponse>(`/api/v1/appointments/${id}/reject`, data).then((r) => r.data),
 };

@@ -96,6 +96,16 @@
     background: rgba(99, 102, 241, 0.30);
     color: #F1F5F9;
   }
+
+  /* Global Dropdown Fix: ensure options are visible in all browsers */
+  select, input, textarea {
+    color-scheme: dark;
+  }
+
+  select option {
+    background-color: #1e2235;
+    color: white;
+  }
 }
 
 @layer components {

@@ -7,11 +7,11 @@ import type {
 
 export const callsApi = {
   getSummary: (params?: { from?: string; to?: string; userId?: string }) =>
-    apiClient.get<CallsSummaryDto>('/api/calls', { params }).then((r) => r.data),
+    apiClient.get<CallsSummaryDto>('/api/v1/calls', { params }).then((r) => r.data),
 
   getMySummary: (params?: { from?: string; to?: string }) =>
-    apiClient.get<CallsSummaryDto>('/api/calls/me', { params }).then((r) => r.data),
+    apiClient.get<CallsSummaryDto>('/api/v1/calls/me', { params }).then((r) => r.data),
 
   create: (data: CreateCallStatRequest) =>
-    apiClient.post<CallStatDto>('/api/calls', data).then((r) => r.data),
+    apiClient.post<CallStatDto>('/api/v1/calls', data).then((r) => r.data),
 };

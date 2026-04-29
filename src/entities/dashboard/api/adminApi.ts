@@ -1,12 +1,13 @@
 import { apiClient } from '@shared/api/client';
+import type { CeoDashboardDto, RopDashboardDto, SalesManagerDashboardDto } from '@shared/api/types';
 
 export const adminApi = {
   getCeoDashboard: () =>
-    apiClient.get('/api/admin/ceo').then((r) => r.data),
+    apiClient.get<CeoDashboardDto>('/api/v1/dashboard/ceo').then((r) => r.data),
 
   getRopDashboard: () =>
-    apiClient.get('/api/admin/rop').then((r) => r.data),
+    apiClient.get<RopDashboardDto>('/api/v1/dashboard/rop').then((r) => r.data),
 
   getSalesManagerDashboard: () =>
-    apiClient.get('/api/admin/sales-manager').then((r) => r.data),
+    apiClient.get<SalesManagerDashboardDto>('/api/v1/dashboard/manager').then((r) => r.data),
 };

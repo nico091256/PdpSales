@@ -23,6 +23,7 @@ export default function AlertsPage() {
   const { data: alerts = [], isLoading } = useQuery({
     queryKey: ['alerts', unreadOnly],
     queryFn: () => alertsApi.getMyAlerts({ unreadOnly }),
+    refetchInterval: 30000, // Poll every 30 seconds for real-time updates
   });
 
   const markReadMutation = useMutation({

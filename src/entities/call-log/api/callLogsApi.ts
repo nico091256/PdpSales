@@ -6,5 +6,5 @@ import type {
 
 export const callLogsApi = {
   log: (data: LogCallRequest) =>
-    apiClient.post<LogCallResponse>('/api/call-logs', data).then((r) => r.data),
+    apiClient.post<LogCallResponse>('/api/v1/call-logs', data).then((r) => r.data),
 };

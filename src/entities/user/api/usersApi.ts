@@ -1,5 +1,5 @@
 import { apiClient } from '@shared/api/client';
-import type { UserListItem } from '@shared/api/types';
+import type { UserListItem, UpdateUserRequest } from '@shared/api/types';
 
 export const usersApi = {
   getAll: (params?: { includeDeleted?: boolean }) =>
@@ -10,4 +10,7 @@ export const usersApi = {
 
   restore: (id: string) =>
     apiClient.post(`/api/v1/users/${id}/restore`).then((r) => r.data),
+
+  update: (id: string, data: UpdateUserRequest) =>
+    apiClient.put<UserListItem>(`/api/v1/users/${id}`, data).then((r) => r.data),
 };

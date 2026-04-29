@@ -68,6 +68,13 @@ export interface UserListItem {
   deletedAtUtc?: string;
 }
 
+export interface UpdateUserRequest {
+  fullName?: string;
+  role?: string;
+  region?: string;
+  department?: string;
+}
+
 // ─── Me ─────────────────────────────────────────────
 export interface MeResponse {
   userId?: string;
@@ -411,7 +418,12 @@ export interface InviteListItem {
 export interface SendInvitationRequest {
   email: string;
   role: UserRole;
-  message?: string;
+}
+
+export interface SendInvitationResponse {
+  inviteId: string;
+  expiresAtUtc: string;
+  inviteLink: string;
 }
 
 // ─── Rankings ────────────────────────────────────────

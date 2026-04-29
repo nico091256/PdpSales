@@ -11,10 +11,9 @@ import {
   Settings,
   User,
   LogOut,
-  TrendingUp,
+  Zap,
   ChevronLeft,
   ChevronRight,
-  Zap,
 } from 'lucide-react';
 import { cn, getInitials } from '@shared/lib/utils';
 import { useAuthStore } from '@entities/auth';
@@ -31,49 +30,57 @@ interface NavLinkItem {
   label: string;
   badge?: string;
   dot?: boolean;
+  roles?: string[]; // Allowed roles for this link
 }
 
 const navItems: { section: string; links: NavLinkItem[] }[] = [
   {
     section: 'Overview',
     links: [
-      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { to: '/rankings', icon: Trophy, label: 'Rankings' },
+      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/rankings', icon: Trophy, label: 'Rankings', roles: ['CEO', 'ROP', 'SalesManager'] },
     ],
   },
   {
     section: 'Management',
     links: [
-      { to: '/users', icon: Users, label: 'Users' },
-      { to: '/appointments', icon: Calendar, label: 'Appointments' },
-      { to: '/call-logs', icon: Phone, label: 'Call Logs' },
+      { to: '/users', icon: Users, label: 'Users', roles: ['CEO', 'ROP'] },
+      { to: '/appointments', icon: Calendar, label: 'Appointments', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/call-logs', icon: Phone, label: 'Call Logs', roles: ['CEO', 'ROP', 'SalesManager'] },
     ],
   },
   {
     section: 'Operations',
     links: [
-      { to: '/alerts', icon: Bell, label: 'Alerts', dot: true },
-      { to: '/invitations', icon: Mail, label: 'Invitations' },
+      { to: '/alerts', icon: Bell, label: 'Alerts', dot: true, roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/invitations', icon: Mail, label: 'Invitations', roles: ['CEO', 'ROP'] },
     ],
   },
   {
     section: 'Settings',
     links: [
-      { to: '/settings', icon: Settings, label: 'Settings' },
-      { to: '/profile', icon: User, label: 'Profile' },
+      { to: '/settings', icon: Settings, label: 'Settings', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/profile', icon: User, label: 'Profile', roles: ['CEO', 'ROP', 'SalesManager'] },
     ],
   },
 ];
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { user, logout } = useAuthStore();
+  const role = user?.role || 'SalesManager';
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully');
+    toast.success('Xush qoling!');
     navigate('/login');
   };
+
+  // Filter items based on user role
+  const filteredNavItems = navItems.map(section => ({
+    ...section,
+    links: section.links.filter(link => !link.roles || link.roles.includes(role))
+  })).filter(section => section.links.length > 0);
 
   return (
     <aside
@@ -108,7 +115,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {navItems.map(({ section, links }) => (
+        {filteredNavItems.map(({ section, links }) => (
           <div key={section} className="mb-5">
             {!collapsed && (
               <p className="label-eyebrow mb-2 px-3">{section}</p>

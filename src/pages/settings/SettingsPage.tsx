@@ -193,15 +193,95 @@ export default function SettingsPage() {
                </div>
             )}
             
-            {(activeTab === 'notifications' || activeTab === 'billing') && (
-               <div className="card-surface rounded-2xl py-24 flex flex-col items-center justify-center text-center">
-                  <div className="h-16 w-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                     <Settings size={32} className="text-[var(--color-text-muted)] animate-spin-slow" />
+            {activeTab === 'notifications' && (
+               <div className="space-y-6 animate-fade-in">
+                  <div className="card-surface rounded-2xl p-8 border-white/[0.05]">
+                     <h3 className="text-lg font-bold mb-6">Email Preferences</h3>
+                     <div className="space-y-6">
+                        {[
+                           { id: 'n1', title: 'New Registration Alerts', desc: 'Notify when a new manager joins the team.', active: true },
+                           { id: 'n2', title: 'Weekly Performance Digest', desc: 'Get a summary of your team performance every Monday.', active: true },
+                           { id: 'n3', title: 'System Updates', desc: 'Receive news about new features and improvements.', active: false },
+                        ].map((item) => (
+                           <div key={item.id} className="flex items-center justify-between">
+                              <div>
+                                 <p className="text-sm font-bold">{item.title}</p>
+                                 <p className="text-xs text-[var(--color-text-muted)]">{item.desc}</p>
+                              </div>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                 <input type="checkbox" defaultChecked={item.active} className="sr-only peer" />
+                                 <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-accent)]"></div>
+                              </label>
+                           </div>
+                        ))}
+                     </div>
                   </div>
-                  <h3 className="text-xl font-bold">Work in Progress</h3>
-                  <p className="text-[var(--color-text-muted)] max-w-xs mt-2">
-                     The {activeTab} module is currently being optimized for premium users. Check back soon!
-                  </p>
+
+                  <div className="card-surface rounded-2xl p-8 border-white/[0.05]">
+                     <h3 className="text-lg font-bold mb-6">Security Notifications</h3>
+                     <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                           <div>
+                              <p className="text-sm font-bold">New Login Attempt</p>
+                              <p className="text-xs text-[var(--color-text-muted)]">Always notify when a login occurs from a new device.</p>
+                           </div>
+                           <span className="px-3 py-1 rounded-full bg-[var(--color-success-muted)] text-[var(--color-success)] text-[10px] font-bold uppercase tracking-wider">Mandatory</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            )}
+
+            {activeTab === 'billing' && (
+               <div className="space-y-6 animate-fade-in">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     <div className="md:col-span-2 card-surface rounded-2xl p-8 border-white/[0.05]">
+                        <div className="flex items-center justify-between mb-8">
+                           <div>
+                              <h3 className="text-lg font-bold">Current Plan</h3>
+                              <p className="text-sm text-[var(--color-text-muted)]">You are currently on the Professional Plan.</p>
+                           </div>
+                           <span className="px-4 py-1.5 rounded-xl bg-gradient-brand text-white text-xs font-bold shadow-glow-soft">Pro Plan</span>
+                        </div>
+                        
+                        <div className="space-y-4 mb-8">
+                           <div className="flex justify-between text-sm">
+                              <span className="text-[var(--color-text-secondary)]">Managers Usage</span>
+                              <span className="font-bold">12 / 50</span>
+                           </div>
+                           <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-full bg-[var(--color-accent)] rounded-full" style={{ width: '24%' }}></div>
+                           </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                           <button className="px-6 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 transition-all">Change Plan</button>
+                           <button className="px-6 py-2.5 rounded-xl text-sm font-bold text-[var(--color-danger)] hover:bg-[var(--color-danger-muted)] transition-all">Cancel Subscription</button>
+                        </div>
+                     </div>
+
+                     <div className="card-surface rounded-2xl p-8 border-white/[0.05] flex flex-col items-center justify-center text-center bg-gradient-to-br from-blue-600/10 to-indigo-600/10">
+                        <p className="text-sm text-[var(--color-text-secondary)] mb-2">Next Payment</p>
+                        <p className="text-3xl font-black mb-1">$49.00</p>
+                        <p className="text-xs text-[var(--color-text-muted)]">Due on June 1, 2026</p>
+                     </div>
+                  </div>
+
+                  <div className="card-surface rounded-2xl p-8 border-white/[0.05]">
+                     <h3 className="text-lg font-bold mb-6">Payment Methods</h3>
+                     <div className="flex items-center justify-between p-4 rounded-xl glass border-white/[0.05]">
+                        <div className="flex items-center gap-4">
+                           <div className="h-10 w-14 bg-white/5 rounded-lg flex items-center justify-center">
+                              <CreditCard size={24} className="text-white/40" />
+                           </div>
+                           <div>
+                              <p className="text-sm font-bold">•••• •••• •••• 4242</p>
+                              <p className="text-xs text-[var(--color-text-muted)]">Expires 12/28</p>
+                           </div>
+                        </div>
+                        <button className="text-xs font-bold text-[var(--color-accent)] hover:underline">Edit</button>
+                     </div>
+                  </div>
                </div>
             )}
          </div>

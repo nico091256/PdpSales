@@ -12,7 +12,8 @@ import {
   LayoutGrid, 
   List,
   Filter,
-  Search
+  Search,
+  Download
 } from 'lucide-react';
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
@@ -51,6 +52,33 @@ export default function AppointmentsPage() {
       toast.success('Appointment rejected');
     },
   });
+
+  const handleExport = () => {
+    if (!appointments.length) {
+      toast.error('No data to export');
+      return;
+    }
+
+    const headers = ['Manager', 'Requested At', 'Status', 'Notes'];
+    const rows = appointments.map(a => [
+      a.salesManagerName || 'N/A',
+      format(new Date(a.requestedAt), 'yyyy-MM-dd HH:mm'),
+      a.status,
+      (a.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
+    ]);
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `appointments_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Appointments exported successfully');
+  };
 
   return (
     <div className="space-y-6">
@@ -92,7 +120,14 @@ export default function AppointmentsPage() {
           />
         </div>
         
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass hover:bg-white/5 transition-colors text-sm">
+        <button 
+          onClick={handleExport}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass hover:bg-white/5 transition-colors text-sm"
+        >
+          <Download size={16} /> Export CSV
+        </button>
+        
+        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass hover:bg-white/5 transition-colors text-sm ml-auto">
           <Filter size={16} /> Filters
         </button>
       </div>

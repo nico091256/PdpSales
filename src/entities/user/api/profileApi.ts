@@ -3,7 +3,7 @@ import type { ProfileDto, UpdateProfileRequest, MeResponse } from '@shared/api/t
 
 export const profileApi = {
   getMe: () =>
-    apiClient.get<MeResponse>('/api/auth/me').then((r) => r.data),
+    apiClient.get<MeResponse>('/api/v1/auth/me').then((r) => r.data),
 
   getProfile: () =>
     apiClient.get<ProfileDto>('/api/v1/profile').then((r) => r.data),

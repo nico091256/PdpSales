@@ -12,7 +12,8 @@ import {
   Search,
   ChevronRight,
   BarChart3,
-  Calendar
+  Calendar,
+  Download
 } from 'lucide-react';
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
@@ -37,7 +38,39 @@ export default function CallLogsPage() {
       setIsLogging(false);
       setForm({ phone: '', note: '', outcome: 'Connected', meetingRequested: false });
     },
+    onError: (error: any) => {
+      const status = error.response?.status;
+      const detail = error.response?.data?.detail || error.response?.data?.message || error.message;
+      toast.error(`${status ? `[${status}] ` : ''}${detail || 'Failed to log call'}`);
+    }
   });
+
+  const handleExport = () => {
+    if (!summary?.items?.length) {
+      toast.error('No data to export');
+      return;
+    }
+
+    const headers = ['Date', 'Successful', 'Follow-up', 'No Answer'];
+    const rows = summary.items.map(item => [
+      format(new Date(item.date), 'yyyy-MM-dd HH:mm'),
+      item.successful,
+      item.followUp,
+      item.noAnswer
+    ]);
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `call_logs_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Call logs exported successfully');
+  };
 
   const stats = [
     { label: 'Total Calls', value: summary?.total || 0, icon: Phone, accent: 'primary' as const },
@@ -81,6 +114,12 @@ export default function CallLogsPage() {
             <div className="flex items-center justify-between">
                <h3 className="text-lg font-bold">Recent Activity</h3>
                <div className="flex gap-2">
+                  <button 
+                    onClick={handleExport}
+                    className="glass px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-semibold hover:text-[var(--color-accent)] transition-colors"
+                  >
+                    <Download size={14} /> Export CSV
+                  </button>
                   <div className="glass px-3 py-1.5 rounded-lg flex items-center gap-2">
                      <Search size={14} className="text-[var(--color-text-muted)]" />
                      <input placeholder="Filter activity..." className="bg-transparent text-xs outline-none w-32" />
@@ -240,7 +279,7 @@ export default function CallLogsPage() {
                   <button 
                      type="submit"
                      disabled={logMutation.isPending}
-                     className="flex-1 py-2.5 text-sm font-bold bg-gradient-brand rounded-xl text-white shadow-glow-soft hover:shadow-glow transition-all"
+                     className="flex-1 py-2.5 text-sm font-bold bg-gradient-brand rounded-xl text-white shadow-glow-soft hover:shadow-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                      {logMutation.isPending ? 'Logging...' : 'Submit Log'}
                   </button>

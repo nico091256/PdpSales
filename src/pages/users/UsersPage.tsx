@@ -45,6 +45,31 @@ export default function UsersPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string, data: any }) => usersApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User updated successfully');
+      setEditingUserId(null);
+    },
+    onError: () => {
+      toast.error('Failed to update user');
+    }
+  });
+
+  const handleSave = () => {
+    if (!editingUserId) return;
+    
+    const fullName = (document.getElementById('edit-fullname') as HTMLInputElement)?.value;
+    const role = (document.getElementById('edit-role') as HTMLSelectElement)?.value;
+    const region = (document.getElementById('edit-region') as HTMLInputElement)?.value;
+    
+    updateMutation.mutate({
+      id: editingUserId,
+      data: { fullName, role, region }
+    });
+  };
+
   const filteredUsers = users.filter(u => 
     u.fullName?.toLowerCase().includes(search.toLowerCase()) || 
     u.email?.toLowerCase().includes(search.toLowerCase())
@@ -255,13 +280,18 @@ export default function UsersPage() {
                     <label className="label-eyebrow">Full Name</label>
                     <div className="glass rounded-xl px-4 py-2.5 flex items-center gap-2">
                        <UserIcon size={16} className="text-[var(--color-text-muted)]" />
-                       <input defaultValue={users.find(u => u.id === editingUserId)?.fullName} className="bg-transparent text-sm w-full outline-none" />
+                       <input 
+                          id="edit-fullname"
+                          defaultValue={users.find(u => u.id === editingUserId)?.fullName} 
+                          className="bg-transparent text-sm w-full outline-none" 
+                        />
                     </div>
                   </div>
                   
                   <div className="space-y-1.5">
                     <label className="label-eyebrow">Role</label>
                     <select 
+                      id="edit-role"
                       defaultValue={users.find(u => u.id === editingUserId)?.role}
                       className="w-full glass rounded-xl px-4 py-2.5 text-sm outline-none border-white/[0.08]"
                     >
@@ -273,7 +303,11 @@ export default function UsersPage() {
                   
                   <div className="space-y-1.5">
                     <label className="label-eyebrow">Region</label>
-                    <input defaultValue={users.find(u => u.id === editingUserId)?.region || ''} className="w-full glass rounded-xl px-4 py-2.5 text-sm outline-none" />
+                    <input 
+                      id="edit-region"
+                      defaultValue={users.find(u => u.id === editingUserId)?.region || ''} 
+                      className="w-full glass rounded-xl px-4 py-2.5 text-sm outline-none" 
+                    />
                   </div>
                </div>
             </div>
@@ -282,8 +316,12 @@ export default function UsersPage() {
                <button onClick={() => setEditingUserId(null)} className="flex-1 py-2.5 rounded-xl border border-white/[0.08] text-sm font-medium hover:bg-white/5 transition-colors">
                  Cancel
                </button>
-               <button className="flex-1 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-semibold shadow-glow-soft">
-                 Save Changes
+               <button 
+                 onClick={handleSave}
+                 disabled={updateMutation.isPending}
+                 className="flex-1 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-semibold shadow-glow-soft disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                </button>
             </div>
           </div>

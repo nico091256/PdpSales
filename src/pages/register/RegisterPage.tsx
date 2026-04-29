@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp, Loader2 } from 'lucide-react';
+import { TrendingUp, Loader2, User, Mail, Lock, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '@entities/auth/api/authApi';
 import { useAuthStore } from '@entities/auth';
@@ -31,7 +31,11 @@ export default function RegisterPage() {
       toast.error('Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
       return;
     }
+
     setLoading(true);
+    console.log('--- REGISTRATION ATTEMPT ---');
+    console.log('Sending data:', form);
+    
     try {
       const data = await authApi.register(form);
 
@@ -43,13 +47,8 @@ export default function RegisterPage() {
 
       toast.success('Hisob yaratildi! Xush kelibsiz.');
       navigate('/dashboard');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { detail?: string; title?: string } } })
-          ?.response?.data?.detail ??
-        (err as { response?: { data?: { title?: string } } })
-          ?.response?.data?.title ??
-        'Ro\'yxatdan o\'tishda xato. Qayta urinib ko\'ring.';
+    } catch (err: any) {
+      const msg = err.response?.data?.detail ?? 'Ro\'yxatdan o\'tishda xato yuz berdi.';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -60,83 +59,82 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center p-8 bg-[var(--color-bg-primary)]">
       <div className="w-full max-w-md animate-slide-up">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-9 h-9 gradient-accent rounded-xl flex items-center justify-center">
+          <div className="w-9 h-9 bg-gradient-brand rounded-xl flex items-center justify-center shadow-glow-soft">
             <TrendingUp size={18} className="text-white" />
           </div>
           <span className="text-lg font-bold text-white">SalesPulse</span>
         </div>
 
-        <h2 className="text-3xl font-bold text-[var(--color-text-primary)] mb-1">Create account</h2>
-        <p className="text-[var(--color-text-secondary)] mb-8">Set up your company workspace</p>
+        <h2 className="text-3xl font-bold text-white mb-1">Create account</h2>
+        <p className="text-[var(--color-text-secondary)] mb-8">Set up your company workspace today</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
           <div>
-            <label className="block text-[13px] font-medium text-[var(--color-text-secondary)] mb-1.5">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={form.fullName}
-              onChange={set('fullName')}
-              placeholder="John Doe"
-              className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] transition-colors"
-            />
+            <label className="label-eyebrow mb-1.5 block">Full Name</label>
+            <div className="glass px-4 py-2.5 rounded-xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 transition-all">
+               <User size={18} className="text-[var(--color-text-muted)]" />
+               <input 
+                  required
+                  type="text"
+                  placeholder="John Doe"
+                  className="bg-transparent text-sm w-full outline-none text-white"
+                  value={form.fullName}
+                  onChange={set('fullName')}
+               />
+            </div>
           </div>
 
-          {/* Email */}
           <div>
-            <label className="block text-[13px] font-medium text-[var(--color-text-secondary)] mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={set('email')}
-              placeholder="john@company.com"
-              autoComplete="email"
-              className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] transition-colors"
-            />
+            <label className="label-eyebrow mb-1.5 block">Email Address</label>
+            <div className="glass px-4 py-2.5 rounded-xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 transition-all">
+               <Mail size={18} className="text-[var(--color-text-muted)]" />
+               <input 
+                  required
+                  type="email"
+                  placeholder="john@company.com"
+                  className="bg-transparent text-sm w-full outline-none text-white"
+                  value={form.email}
+                  onChange={set('email')}
+               />
+            </div>
           </div>
 
-          {/* Password */}
           <div>
-            <label className="block text-[13px] font-medium text-[var(--color-text-secondary)] mb-1.5">
-              Password <span className="text-[var(--color-text-muted)]">(min 6 chars)</span>
-            </label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={set('password')}
-              placeholder="••••••••"
-              autoComplete="new-password"
-              className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] transition-colors"
-            />
+            <label className="label-eyebrow mb-1.5 block">Password</label>
+            <div className="glass px-4 py-2.5 rounded-xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 transition-all">
+               <Lock size={18} className="text-[var(--color-text-muted)]" />
+               <input 
+                  required
+                  type="password"
+                  placeholder="••••••••"
+                  className="bg-transparent text-sm w-full outline-none text-white"
+                  value={form.password}
+                  onChange={set('password')}
+               />
+            </div>
           </div>
 
-          {/* Company Name */}
           <div>
-            <label className="block text-[13px] font-medium text-[var(--color-text-secondary)] mb-1.5">
-              Company Name
-            </label>
-            <input
-              type="text"
-              value={form.companyName}
-              onChange={set('companyName')}
-              placeholder="Acme Corp"
-              className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[14px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] transition-colors"
-            />
+            <label className="label-eyebrow mb-1.5 block">Company Name</label>
+            <div className="glass px-4 py-2.5 rounded-xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 transition-all">
+               <Building2 size={18} className="text-[var(--color-text-muted)]" />
+               <input 
+                  required
+                  type="text"
+                  placeholder="Acme Corp"
+                  className="bg-transparent text-sm w-full outline-none text-white"
+                  value={form.companyName}
+                  onChange={set('companyName')}
+               />
+            </div>
           </div>
 
-          {/* Role */}
           <div>
-            <label className="block text-[13px] font-medium text-[var(--color-text-secondary)] mb-1.5">
-              Role
-            </label>
+            <label className="label-eyebrow mb-1.5 block">Role</label>
             <select
               value={form.role}
               onChange={set('role')}
-              className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[14px] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] transition-colors cursor-pointer"
+              className="w-full px-4 py-2.5 rounded-xl glass border-white/5 text-sm text-white outline-none focus:border-[var(--color-accent)]/50 transition-all cursor-pointer"
             >
               <option value="CEO">CEO</option>
               <option value="ROP">ROP</option>
@@ -144,20 +142,18 @@ export default function RegisterPage() {
             </select>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 rounded-lg gradient-accent text-white text-[14px] font-semibold glow-accent hover:opacity-90 active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 mt-2"
+          <button 
+             type="submit"
+             disabled={loading}
+             className="w-full py-3.5 mt-4 rounded-xl bg-gradient-brand text-white font-bold shadow-glow-soft hover:shadow-glow transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
           >
-            {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? 'Creating account...' : 'Create Account'}
+             {loading ? <Loader2 className="animate-spin" size={20} /> : 'Create Account'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-[13px] text-[var(--color-text-muted)]">
+        <p className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
           Already have an account?{' '}
-          <Link to="/login" className="text-[var(--color-accent)] hover:underline">
+          <Link to="/login" className="text-[var(--color-accent)] hover:underline font-medium">
             Sign in
           </Link>
         </p>
