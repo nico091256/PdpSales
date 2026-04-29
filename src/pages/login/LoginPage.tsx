@@ -36,14 +36,10 @@ export default function LoginPage() {
 
       toast.success('Xush kelibsiz!');
       navigate('/dashboard');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { detail?: string; title?: string } } })
-          ?.response?.data?.detail ??
-        (err as { response?: { data?: { title?: string } } })
-          ?.response?.data?.title ??
-        'Login xatosi. Ma\'lumotlarni tekshiring.';
-      toast.error(msg);
+    } catch (err: any) {
+      const status = err.response?.status;
+      const detail = err.response?.data?.detail || err.response?.data?.title || err.message;
+      toast.error(`${status ? `[${status}] ` : ''}${detail || 'Login xatosi. Ma\'lumotlarni tekshiring.'}`);
     } finally {
       setLoading(false);
     }
