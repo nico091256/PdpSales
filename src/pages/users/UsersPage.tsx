@@ -10,7 +10,6 @@ import {
   RotateCcw, 
   X, 
   MoreHorizontal,
-  Mail,
   User as UserIcon,
   Filter
 } from 'lucide-react';

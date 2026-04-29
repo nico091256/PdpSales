@@ -5,13 +5,9 @@ import {
   Crown, 
   Trophy, 
   ArrowUp, 
-  ArrowDown, 
-  Medal, 
-  TrendingUp,
-  Search,
-  Filter
+  ArrowDown
 } from 'lucide-react';
-import { cn, getInitials } from '@shared/lib/utils';
+import { cn } from '@shared/lib/utils';
 
 export default function RankingsPage() {
   const [period, setPeriod] = useState<'month' | 'quarter' | 'year'>('month');
@@ -23,7 +19,6 @@ export default function RankingsPage() {
 
   const sortedRankings = [...rankings].sort((a, b) => a.rank - b.rank);
   const top3 = sortedRankings.slice(0, 3);
-  const rest = sortedRankings.slice(3);
 
   // Podium order: [2nd, 1st, 3rd]
   const podium = [

@@ -1,5 +1,5 @@
 import { apiClient } from '@shared/api/client';
-import type { InviteListItem, SendInvitationRequest } from '@shared/api/types';
+import type { InviteListItem, SendInvitationRequest, SendInvitationResponse } from '@shared/api/types';
 
 export const invitationsApi = {
   getAll: () =>

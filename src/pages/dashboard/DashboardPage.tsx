@@ -9,9 +9,7 @@ import {
   TrendingUp, 
   Bell, 
   AlertTriangle, 
-  Info,
   CheckCircle2,
-  ChevronRight,
   Target
 } from 'lucide-react';
 import { 
@@ -24,7 +22,6 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { format } from 'date-fns';
-import { cn } from '@shared/lib/utils';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
@@ -35,8 +32,8 @@ export default function DashboardPage() {
     queryKey: ['dashboard', role],
     queryFn: () => {
       if (role === 'CEO') return adminApi.getCeoDashboard();
-      if (role === 'ROP') return adminApi.getRopDashboard();
-      if (role === 'SalesManager') return adminApi.getSalesManagerDashboard();
+      if (role === 'ROP') return adminApi.getRopDashboard() as any;
+      if (role === 'SalesManager') return adminApi.getSalesManagerDashboard() as any;
       return adminApi.getCeoDashboard(); // fallback
     },
     enabled: !!role,
@@ -69,11 +66,11 @@ export default function DashboardPage() {
   }
 
   // --- Data Mapping Based on Role ---
-  // Note: We use optional chaining and fallbacks because schemas differ slightly
-  const summary = data?.summary || (data as any)?.companySummary || (data as any)?.personalSummary;
-  const metrics = data?.salesMetrics?.monthly || data?.salesMetrics?.daily || [];
-  const alerts = (data as any)?.alerts?.latest || (data as any)?.recentAlerts || [];
-  const ranking = (data as any)?.ranking?.items || [];
+  const dashboardData = data as any;
+  const summary = dashboardData?.summary || dashboardData?.companySummary || dashboardData?.personalSummary;
+  const metrics = dashboardData?.salesMetrics?.monthly || dashboardData?.salesMetrics?.daily || [];
+  const alerts = dashboardData?.alerts?.latest || dashboardData?.recentAlerts || [];
+  const ranking = dashboardData?.ranking?.items || [];
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);

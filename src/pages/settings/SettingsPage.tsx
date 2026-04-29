@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { companyApi } from '@entities/user/api/companyApi';
 import { 
-  Settings, 
-  Globe, 
   Lock, 
   Bell, 
   Cloud, 
@@ -12,7 +10,7 @@ import {
   Save,
   CheckCircle2,
   Trash2,
-  ChevronRight
+  Loader2
 } from 'lucide-react';
 import { cn } from '@shared/lib/utils';
 import toast from 'react-hot-toast';
@@ -21,12 +19,12 @@ export default function SettingsPage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'general' | 'security' | 'notifications' | 'billing'>('general');
 
-  const { data: settings, isLoading } = useQuery({
+  const { data: settings } = useQuery({
     queryKey: ['company-settings'],
     queryFn: companyApi.getSettings,
   });
 
-  const [form, setForm] = useState({
+  const [form] = useState({
     companyName: '',
     industry: '',
     timezone: '',

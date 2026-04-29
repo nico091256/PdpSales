@@ -1,7 +1,7 @@
 import { Bell, Search, ChevronDown, Calendar } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '@entities/auth';
-import { cn, getInitials } from '@shared/lib/utils';
+import { getInitials } from '@shared/lib/utils';
 
 const pageTitles: Record<string, { title: string; crumb: string }> = {
   '/dashboard': { title: 'Dashboard', crumb: 'Overview / Dashboard' },

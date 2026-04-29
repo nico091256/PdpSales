@@ -26,7 +26,7 @@ interface SidebarProps {
 
 interface NavLinkItem {
   to: string;
-  icon: React.FC<{ size?: number; strokeWidth?: number }>;
+  icon: React.FC<{ size?: number; strokeWidth?: number; className?: string }>;
   label: string;
   badge?: string;
   dot?: boolean;

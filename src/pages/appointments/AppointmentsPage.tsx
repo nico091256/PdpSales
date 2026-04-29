@@ -7,7 +7,6 @@ import {
   Check, 
   X, 
   Clock, 
-  MapPin, 
   MoreVertical, 
   LayoutGrid, 
   List,

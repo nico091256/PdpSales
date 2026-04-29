@@ -4,7 +4,7 @@ import { Zap, Eye, EyeOff, Loader2, Shield, Globe, Star, Mail, Lock } from 'luci
 import toast from 'react-hot-toast';
 import { authApi } from '@entities/auth/api/authApi';
 import { useAuthStore } from '@entities/auth';
-import { cn } from '@shared/lib/utils';
+
 
 export default function LoginPage() {
   const navigate = useNavigate();

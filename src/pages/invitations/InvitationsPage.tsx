@@ -11,9 +11,7 @@ import {
   X,
   UserPlus,
   Shield,
-  Search,
-  Copy,
-  Check
+  Copy
 } from 'lucide-react';
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
