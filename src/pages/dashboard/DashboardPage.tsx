@@ -58,9 +58,13 @@ export default function DashboardPage() {
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
         <AlertTriangle size={48} className="text-[var(--color-danger)] mb-4 opacity-50" />
         <h3 className="text-xl font-bold text-white mb-2">Error Loading Dashboard</h3>
-        <p className="text-[var(--color-text-muted)] max-w-md">
+        <p className="text-[var(--color-text-muted)] max-w-md mb-4">
           There was a problem fetching your performance data. Please try again later or contact support.
         </p>
+        <div className="glass px-4 py-2 rounded-lg text-xs font-mono text-[var(--color-danger)]">
+          {(error as any)?.response?.status ? `[${(error as any).response.status}] ` : ''}
+          {(error as any)?.response?.data?.detail || (error as any)?.message || 'Unknown Error'}
+        </div>
       </div>
     );
   }
