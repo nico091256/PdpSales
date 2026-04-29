@@ -20,6 +20,7 @@ export interface UserInfo {
   role?: string;
   companyId: string;
   theme?: string;
+  photoUrl?: string;
 }
 
 export interface LoginResponse {
