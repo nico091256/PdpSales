@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useAuthStore } from '@entities/auth/model/authStore';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://salesperformancebackend-production.up.railway.app';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,

@@ -23,7 +23,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://37.140.216.66:5276',
+        target: 'https://salesperformancebackend-production.up.railway.app',
         changeOrigin: true,
         secure: false,
       },
