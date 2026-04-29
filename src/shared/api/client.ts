@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useAuthStore } from '@entities/auth/model/authStore';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://37.140.216.66:5276';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://37.140.216.66:5276';
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
