@@ -117,8 +117,8 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div className="card-surface rounded-2xl overflow-hidden border-white/[0.05] relative group/header">
         <div className="h-32 bg-gradient-brand opacity-80" />
-        <div className="px-8 pb-8 relative">
-          <div className="absolute -top-12 left-8">
+        <div className="px-4 sm:px-8 pb-6 sm:pb-8 relative">
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 sm:left-8 sm:translate-x-0">
             <div className="relative group">
               <div className="h-24 w-24 rounded-full bg-gradient-brand p-1 shadow-2xl transition-transform group-hover:scale-105">
                 <div className="h-full w-full rounded-full bg-[var(--color-bg-secondary)] overflow-hidden flex items-center justify-center text-3xl font-bold">
@@ -139,7 +139,7 @@ export default function ProfilePage() {
             </div>
           </div>
           
-          <div className="pt-16 flex flex-wrap items-end justify-between gap-4">
+          <div className="pt-16 sm:pt-16 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 text-center sm:text-left">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">{profile?.fullName}</h1>
               <p className="text-[var(--color-text-muted)] flex items-center gap-2 mt-1 text-sm uppercase tracking-widest font-semibold">

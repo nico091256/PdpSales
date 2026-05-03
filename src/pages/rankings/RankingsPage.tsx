@@ -60,36 +60,36 @@ export default function RankingsPage() {
         <div className="card-surface relative overflow-hidden rounded-2xl py-12 px-6 border-white/[0.05]">
           <div className="absolute inset-0 bg-gradient-radial from-[var(--color-accent)]/10 to-transparent opacity-40" />
           
-          <div className="relative flex items-end justify-center gap-4 sm:gap-8 max-w-4xl mx-auto">
+          <div className="relative flex items-end justify-center gap-2 sm:gap-8 max-w-4xl mx-auto">
             {podium.map((p) => (
               p.item && (
-                <div key={p.place} className="flex flex-col items-center w-full max-w-[180px] animate-rise">
-                  <div className="relative mb-6 text-center">
+                <div key={p.place} className="flex flex-col items-center w-full max-w-[100px] sm:max-w-[180px] animate-rise">
+                  <div className="relative mb-4 sm:mb-6 text-center">
                     {p.place === 1 && (
                       <Crown 
-                        className="absolute -top-10 left-1/2 -translate-x-1/2 h-10 w-10 text-[var(--color-warning)] drop-shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-float" 
+                        className="absolute -top-7 sm:-top-10 left-1/2 -translate-x-1/2 h-7 w-7 sm:h-10 sm:w-10 text-[var(--color-warning)] drop-shadow-[0_0_12px_rgba(245,158,11,0.6)] animate-float" 
                         fill="currentColor" 
                       />
                     )}
                     <div className={cn(
-                      "relative h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-brand p-1 shadow-2xl mx-auto",
-                      p.place === 1 && "h-20 w-20 sm:h-24 sm:w-24"
+                      "relative h-12 w-12 sm:h-20 sm:w-20 rounded-full bg-gradient-brand p-0.5 sm:p-1 shadow-2xl mx-auto",
+                      p.place === 1 && "h-16 w-16 sm:h-24 sm:w-24"
                     )}>
-                      <div className="h-full w-full rounded-full bg-[var(--color-bg-secondary)] flex items-center justify-center text-xl font-bold">
+                      <div className="h-full w-full rounded-full bg-[var(--color-bg-secondary)] flex items-center justify-center text-sm sm:text-xl font-bold">
                         {p.item.name?.[0] || 'U'}
                       </div>
                     </div>
-                    <h3 className="mt-4 text-sm font-bold truncate">{p.item.name}</h3>
-                    <p className="text-xs font-semibold text-[var(--color-success)]">{formatCurrency(p.item.revenue)}</p>
+                    <h3 className="mt-2 sm:mt-4 text-[10px] sm:text-sm font-bold truncate px-1">{p.item.name}</h3>
+                    <p className="text-[9px] sm:text-xs font-semibold text-[var(--color-success)]">{formatCurrency(p.item.revenue)}</p>
                   </div>
                   
                   <div className={cn(
-                    "w-full rounded-t-2xl bg-gradient-to-b flex flex-col items-center justify-start pt-4 border-t border-white/20 shadow-2xl transition-all hover:brightness-110",
+                    "w-full rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b flex flex-col items-center justify-start pt-2 sm:pt-4 border-t border-white/20 shadow-2xl transition-all hover:brightness-110",
                     p.color,
-                    p.height
+                    p.height.replace('h-', 'h-24 sm:h-') // Default mobile height
                   )}>
-                    <span className="text-4xl font-black opacity-40 text-black">#{p.place}</span>
-                    <Trophy className="mt-2 text-black/30" size={24} />
+                    <span className="text-2xl sm:text-4xl font-black opacity-30 sm:opacity-40 text-black">#{p.place}</span>
+                    <Trophy className="mt-1 sm:mt-2 text-black/20 sm:text-black/30 h-4 w-4 sm:h-6 sm:w-6" />
                   </div>
                 </div>
               )
@@ -107,9 +107,9 @@ export default function RankingsPage() {
                 <th className="px-6 py-4 font-semibold w-16">Rank</th>
                 <th className="px-6 py-4 font-semibold">Manager</th>
                 <th className="px-6 py-4 font-semibold">Revenue</th>
-                <th className="px-6 py-4 font-semibold">Appointments</th>
+                <th className="px-6 py-4 font-semibold hidden lg:table-cell">Appointments</th>
                 <th className="px-6 py-4 font-semibold text-center">KPI Score</th>
-                <th className="px-6 py-4 font-semibold text-right">Trend</th>
+                <th className="px-6 py-4 font-semibold text-right hidden sm:table-cell">Trend</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
@@ -142,13 +142,13 @@ export default function RankingsPage() {
                   <td className="px-6 py-4 font-bold text-[var(--color-text-primary)] tabular-nums">
                     {formatCurrency(m.revenue)}
                   </td>
-                  <td className="px-6 py-4 text-sm tabular-nums text-[var(--color-text-secondary)]">
+                  <td className="px-6 py-4 text-sm tabular-nums text-[var(--color-text-secondary)] hidden lg:table-cell">
                     {m.appointments} <span className="text-[10px] text-[var(--color-text-muted)]">meets</span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col items-center gap-1.5">
                        <span className="text-sm font-bold text-[var(--color-accent)]">{m.score}</span>
-                       <div className="h-1 w-20 bg-white/5 rounded-full overflow-hidden">
+                       <div className="h-1 w-20 bg-white/5 rounded-full overflow-hidden hidden sm:block">
                           <div 
                             className="h-full bg-gradient-brand transition-all duration-700" 
                             style={{ width: `${m.score}%` }}
@@ -156,7 +156,7 @@ export default function RankingsPage() {
                        </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden sm:table-cell">
                     <div className="flex justify-end items-center gap-1">
                       {m.change > 0 ? (
                         <div className="flex items-center gap-1 text-[var(--color-success)] font-bold text-xs">

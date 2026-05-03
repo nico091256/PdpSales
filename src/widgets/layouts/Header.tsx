@@ -1,4 +1,4 @@
-import { Bell, Search, ChevronDown, Calendar } from 'lucide-react';
+import { Bell, Search, ChevronDown, Calendar, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useAuthStore } from '@entities/auth';
 import { getInitials } from '@shared/lib/utils';
@@ -15,19 +15,30 @@ const pageTitles: Record<string, { title: string; crumb: string }> = {
   '/settings': { title: 'System Settings', crumb: 'Settings / General' },
 };
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   const meta = pageTitles[location.pathname] ?? { title: 'Dashboard', crumb: 'Overview' };
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/70 px-6 backdrop-blur-xl">
-      <div className="min-w-0">
-        <h1 className="truncate text-lg font-semibold tracking-tight text-[var(--color-text-primary)]">{meta.title}</h1>
-        <p className="truncate text-[11px] uppercase tracking-[0.1em] text-[var(--color-text-muted)]">{meta.crumb}</p>
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/70 px-4 sm:px-6 backdrop-blur-xl">
+      <button 
+        onClick={onMenuClick}
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--color-text-secondary)] transition-colors hover:bg-white/5 hover:text-[var(--color-text-primary)] lg:hidden"
+      >
+        <Menu size={20} />
+      </button>
+
+      <div className="min-w-0 flex-1 lg:flex-none">
+        <h1 className="truncate text-base sm:text-lg font-semibold tracking-tight text-[var(--color-text-primary)]">{meta.title}</h1>
+        <p className="truncate text-[10px] sm:text-[11px] uppercase tracking-[0.1em] text-[var(--color-text-muted)]">{meta.crumb}</p>
       </div>
 
-      <div className="mx-auto hidden w-full max-w-md md:block">
+      <div className="mx-auto hidden w-full max-w-md xl:block">
         <div className="glass flex items-center gap-2 rounded-lg px-3 py-2 transition-all focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)]/30">
           <Search size={16} className="text-[var(--color-text-muted)]" />
           <input
@@ -38,7 +49,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button className="glass hidden items-center gap-2 rounded-lg px-3 py-2 text-xs text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)] md:flex">
           <Calendar size={14} />
           <span>Apr 1 – Apr 28</span>
@@ -50,16 +61,16 @@ export function Header() {
           <span className="absolute right-1.5 top-1.5 flex h-1.5 w-1.5 rounded-full bg-[var(--color-danger)] animate-pulse-soft" />
         </button>
 
-        <div className="h-8 w-px bg-[var(--color-border)] mx-1" />
+        <div className="h-8 w-px bg-[var(--color-border)] mx-1 hidden sm:block" />
 
-        <button className="flex items-center gap-2 rounded-lg p-1 pr-2 transition-colors hover:bg-white/5">
+        <button className="flex items-center gap-2 rounded-lg p-1 transition-colors hover:bg-white/5 sm:pr-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-brand font-bold text-white text-[11px]">
             {user?.fullName ? getInitials(user.fullName) : 'U'}
           </div>
-          <span className="hidden text-sm font-medium text-[var(--color-text-primary)] md:block">
+          <span className="hidden text-sm font-medium text-[var(--color-text-primary)] sm:block">
             {user?.fullName?.split(' ')[0] ?? 'User'}
           </span>
-          <ChevronDown size={14} className="hidden text-[var(--color-text-muted)] md:block" />
+          <ChevronDown size={14} className="hidden text-[var(--color-text-muted)] sm:block" />
         </button>
       </div>
     </header>

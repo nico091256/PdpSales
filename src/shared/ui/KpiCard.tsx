@@ -49,8 +49,8 @@ export function KpiCard({
       
       <div className="flex items-start justify-between">
         <div>
-          <p className="label-eyebrow">{label}</p>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-[var(--color-text-primary)] tabular-nums animate-number">
+          <p className="label-eyebrow truncate">{label}</p>
+          <p className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text-primary)] tabular-nums animate-number">
             {value}
           </p>
         </div>

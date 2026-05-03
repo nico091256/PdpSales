@@ -60,7 +60,7 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
          {/* Sidebar Tabs */}
-         <div className="lg:col-span-1 space-y-1">
+         <div className="lg:col-span-1 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 no-scrollbar">
             {tabs.map((tab) => {
                const Icon = tab.icon;
                return (
@@ -68,7 +68,7 @@ export default function SettingsPage() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap lg:w-full",
                       activeTab === tab.id 
                         ? "bg-gradient-brand text-white shadow-glow-soft" 
                         : "text-[var(--color-text-secondary)] hover:bg-white/5 hover:text-white"

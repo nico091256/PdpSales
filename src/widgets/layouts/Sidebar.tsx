@@ -14,6 +14,7 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { cn, getInitials } from '@shared/lib/utils';
 import { useAuthStore } from '@entities/auth';
@@ -22,6 +23,8 @@ import toast from 'react-hot-toast';
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 interface NavLinkItem {
@@ -65,7 +68,7 @@ const navItems: { section: string; links: NavLinkItem[] }[] = [
   },
 ];
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: SidebarProps) {
   const { user, logout } = useAuthStore();
   const role = user?.role || 'SalesManager';
   const navigate = useNavigate();
@@ -85,29 +88,35 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-30 flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-sidebar)] transition-[width] duration-300 ease-in-out',
-        collapsed ? 'w-[72px]' : 'w-[260px]'
+        'fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-sidebar)] transition-all duration-300 ease-in-out',
+        'lg:translate-x-0',
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+        collapsed ? 'w-[72px]' : 'w-[260px]',
+        isMobileOpen && 'w-[260px] translate-x-0'
       )}
     >
       {/* Logo Section */}
       <div className={cn(
         'flex h-16 items-center gap-3 border-b border-[var(--color-border)] px-5',
-        collapsed && 'justify-center px-0'
+        collapsed && !isMobileOpen && 'justify-center px-0'
       )}>
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-brand shadow-glow-soft animate-pulse-soft">
           <Zap className="h-5 w-5 text-white" fill="currentColor" />
         </div>
-        {!collapsed && (
+        {(!collapsed || isMobileOpen) && (
           <div className="flex flex-1 items-center justify-between">
             <span className="text-[16px] font-bold tracking-tight text-[var(--color-text-primary)]">SalesPulse</span>
-            <button onClick={onToggle} className="rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-white/5 hover:text-[var(--color-text-primary)]">
-              <ChevronLeft size={16} />
+            <button 
+              onClick={isMobileOpen ? onMobileClose : onToggle} 
+              className="rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-white/5 hover:text-[var(--color-text-primary)]"
+            >
+              {isMobileOpen ? <X size={18} /> : <ChevronLeft size={16} />}
             </button>
           </div>
         )}
       </div>
 
-      {collapsed && (
+      {collapsed && !isMobileOpen && (
         <button onClick={onToggle} className="mx-auto mt-3 rounded-md p-1.5 text-[var(--color-text-muted)] hover:bg-white/5 hover:text-[var(--color-text-primary)]">
           <ChevronRight size={16} />
         </button>
@@ -117,7 +126,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4 space-y-6">
         {filteredNavItems.map(({ section, links }) => (
           <div key={section} className="mb-5">
-            {!collapsed && (
+            {(!collapsed || isMobileOpen) && (
               <p className="label-eyebrow mb-2 px-3">{section}</p>
             )}
             <ul className="space-y-0.5">
@@ -131,7 +140,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         isActive
                           ? 'bg-gradient-brand-soft text-[var(--color-text-primary)] shadow-glow-soft'
                           : 'text-[var(--color-text-secondary)] hover:bg-white/5 hover:text-[var(--color-text-primary)]',
-                        collapsed && 'justify-center px-0'
+                        collapsed && !isMobileOpen && 'justify-center px-0'
                       )
                     }
                   >
@@ -139,14 +148,14 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       <>
                         {isActive && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--color-accent)]" />}
                         <Icon className={cn('h-[18px] w-[18px] shrink-0', isActive && 'text-[var(--color-accent)]')} strokeWidth={isActive ? 2 : 1.5} />
-                        {!collapsed && <span className="flex-1 truncate">{label}</span>}
-                        {!collapsed && badge && (
+                        {(!collapsed || isMobileOpen) && <span className="flex-1 truncate">{label}</span>}
+                        {(!collapsed || isMobileOpen) && badge && (
                           <span className="rounded-md bg-[var(--color-accent-muted)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--color-accent)]">{badge}</span>
                         )}
                         {dot && (
                           <span className={cn(
                             "rounded-full bg-[var(--color-danger)]",
-                            collapsed ? "absolute right-1.5 top-1.5 h-1.5 w-1.5" : "h-1.5 w-1.5 animate-pulse-soft"
+                            collapsed && !isMobileOpen ? "absolute right-1.5 top-1.5 h-1.5 w-1.5" : "h-1.5 w-1.5 animate-pulse-soft"
                           )} />
                         )}
                       </>
@@ -160,21 +169,21 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* User Footer */}
-      <div className={cn('border-t border-[var(--color-border)] p-3', collapsed ? 'flex flex-col items-center gap-2' : '')}>
+      <div className={cn('border-t border-[var(--color-border)] p-3', collapsed && !isMobileOpen ? 'flex flex-col items-center gap-2' : '')}>
         <div className={cn(
           'flex items-center gap-3 rounded-lg p-2 transition-colors',
-          !collapsed && 'bg-white/[0.03] hover:bg-white/[0.05]'
+          (!collapsed || isMobileOpen) && 'bg-white/[0.03] hover:bg-white/[0.05]'
         )}>
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-brand font-bold text-white text-[11px] ring-2 ring-[var(--color-bg-primary)]/40">
             {user?.fullName ? getInitials(user.fullName) : 'U'}
           </div>
-          {!collapsed && (
+          {(!collapsed || isMobileOpen) && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-medium text-[var(--color-text-primary)]">{user?.fullName ?? 'User'}</p>
               <p className="truncate text-[11px] text-[var(--color-text-muted)]">{user?.role}</p>
             </div>
           )}
-          {!collapsed && (
+          {(!collapsed || isMobileOpen) && (
             <button 
               onClick={handleLogout}
               className="rounded-md p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-white/5 hover:text-[var(--color-danger)]"
@@ -183,7 +192,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </button>
           )}
         </div>
-        {collapsed && (
+        {collapsed && !isMobileOpen && (
           <button 
             onClick={handleLogout}
             className="rounded-md p-2 text-[var(--color-text-muted)] hover:bg-white/5 hover:text-[var(--color-danger)]"

@@ -96,7 +96,7 @@ export default function UsersPage() {
 
       {/* Filters & Actions */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="glass flex flex-1 items-center gap-2 rounded-xl px-4 py-2.5 min-w-[300px] focus-within:border-[var(--color-accent)]/50 transition-colors">
+        <div className="glass flex flex-1 items-center gap-2 rounded-xl px-4 py-2.5 min-w-full sm:min-w-[300px] focus-within:border-[var(--color-accent)]/50 transition-colors">
           <Search size={18} className="text-[var(--color-text-muted)]" />
           <input 
             placeholder="Search by name, email or region..." 
@@ -135,8 +135,8 @@ export default function UsersPage() {
               <tr className="border-b border-white/[0.05] text-[11px] uppercase tracking-[0.1em] text-[var(--color-text-muted)]">
                 <th className="px-6 py-4 font-semibold">User</th>
                 <th className="px-6 py-4 font-semibold">Role</th>
-                <th className="px-6 py-4 font-semibold">Region / Dept</th>
-                <th className="px-6 py-4 font-semibold">Joined</th>
+                <th className="px-6 py-4 font-semibold hidden lg:table-cell">Region / Dept</th>
+                <th className="px-6 py-4 font-semibold hidden md:table-cell">Joined</th>
                 <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -172,13 +172,13 @@ export default function UsersPage() {
                       {user.role?.replace(/([A-Z])/g, ' $1').trim() || 'No Role'}
                     </StatusBadge>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 hidden lg:table-cell">
                     <div className="text-sm">
                        {user.region || '—'}
                        <p className="text-[11px] text-[var(--color-text-muted)]">{user.department || 'General'}</p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-[var(--color-text-muted)] tabular-nums">
+                  <td className="px-6 py-4 text-sm text-[var(--color-text-muted)] tabular-nums hidden md:table-cell">
                     {format(new Date(user.createdAtUtc), 'MMM d, yyyy')}
                   </td>
                   <td className="px-6 py-4">

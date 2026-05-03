@@ -224,3 +224,19 @@
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
+
+/* ─── Responsive Layout Logic (Bypassing JS issues) ─── */
+.main-layout-content {
+  padding-left: 0 !important; /* Mobile default: NO PUSHING */
+  transition: padding 0.3s ease-in-out;
+}
+
+@media (min-width: 1024px) {
+  .main-layout-content {
+    padding-left: 260px !important; /* Desktop default */
+  }
+  
+  .main-layout-content.sidebar-collapsed {
+    padding-left: 72px !important; /* Collapsed state */
+  }
+}
