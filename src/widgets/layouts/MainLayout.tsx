@@ -3,12 +3,11 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { cn } from '@shared/lib/utils';
-import { useMediaQuery } from '@shared/lib/hooks/use-media-query';
+
 
 export function MainLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 1023px)');
   const location = useLocation();
 
   // Close mobile menu on route change

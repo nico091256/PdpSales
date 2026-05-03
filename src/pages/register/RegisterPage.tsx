@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp, Loader2, User, Mail, Lock, Building2, ChevronDown } from 'lucide-react';
+import { TrendingUp, Loader2, User, Mail, Lock, Building2, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '@entities/auth/api/authApi';
 import { useAuthStore } from '@entities/auth';
@@ -163,6 +163,13 @@ export default function RegisterPage() {
                   value={form.password}
                   onChange={set('password')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[var(--color-text-muted)] hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
@@ -178,6 +185,13 @@ export default function RegisterPage() {
                   value={form.confirmPassword}
                   onChange={set('confirmPassword')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[var(--color-text-muted)] hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
           </div>
