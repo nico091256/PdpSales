@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+import { I18nProvider } from './providers/I18nProvider';
+import { ThemeProvider } from './providers/ThemeProvider';
 
 import { useAuthStore } from '@entities/auth';
 import { MainLayout } from '@widgets/layouts/MainLayout';
@@ -19,6 +21,7 @@ const UsersPage = lazy(() => import('@pages/users/UsersPage'));
 const InvitationsPage = lazy(() => import('@pages/invitations/InvitationsPage'));
 const ProfilePage = lazy(() => import('@pages/profile/ProfilePage'));
 const SettingsPage = lazy(() => import('@pages/settings/SettingsPage'));
+const AccountPage = lazy(() => import('@pages/account/AccountPage'));
 const AcceptInvitePage = lazy(() => import('@pages/invitations/AcceptInvitePage'));
 
 const queryClient = new QueryClient({
@@ -69,9 +72,11 @@ function RoleRoute({ children, roles }: { children: React.ReactNode, roles: stri
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+      <I18nProvider>
+        <ThemeProvider>
+          <BrowserRouter>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
             {/* Public Routes */}
             <Route
               path="/login"
@@ -115,8 +120,13 @@ export function App() {
               <Route path="appointments" element={<AppointmentsPage />} />
               <Route path="call-logs" element={<CallLogsPage />} />
               <Route path="alerts" element={<AlertsPage />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="settings" element={<SettingsPage />} />
+              <Route path="profile" element={<Navigate to="/account/profile" replace />} />
+              <Route path="settings" element={<Navigate to="/account/settings" replace />} />
+              <Route path="account" element={<AccountPage />}>
+                <Route index element={<Navigate to="/account/profile" replace />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
 
               {/* CEO & ROP Only Routes */}
               <Route 
@@ -139,9 +149,11 @@ export function App() {
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </ThemeProvider>
+      </I18nProvider>
 
       <Toaster
         position="top-right"

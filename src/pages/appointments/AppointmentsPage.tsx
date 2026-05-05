@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { appointmentsApi } from '@entities/appointment/api/appointmentsApi';
+import { useAuthStore } from '@entities/auth';
 import { StatusBadge } from '@shared/ui/StatusBadge';
 import { 
   Calendar, 
@@ -28,12 +29,19 @@ const columns: { status: AppointmentStatus; label: string; color: string }[] = [
 
 export default function AppointmentsPage() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const role = user?.role;
   const [view, setView] = useState<'kanban' | 'table'>('kanban');
   const [search, setSearch] = useState('');
 
+  // CEO → all appointments (admin view)
+  // ROP + SalesManager → own appointments only
   const { data: appointments = [], isLoading } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => appointmentsApi.getAll(),
+    queryKey: ['appointments', role],
+    queryFn: () =>
+      role === 'CEO'
+        ? appointmentsApi.getAll()
+        : appointmentsApi.getMy(),
   });
 
   const approveMutation = useMutation({
@@ -177,7 +185,7 @@ export default function AppointmentsPage() {
                         </div>
                       </div>
                       
-                      {item.status === 'Requested' && (
+                      {item.status === 'Requested' && role === 'CEO' && (
                         <div className="mt-4 flex gap-2 pt-4 border-t border-white/[0.05]">
                           <button 
                             onClick={() => approveMutation.mutate(item.id)}

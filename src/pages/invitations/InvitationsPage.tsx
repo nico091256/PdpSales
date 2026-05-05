@@ -16,26 +16,48 @@ import {
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import type { UserRole } from '@shared/api/types';
 
 export default function InvitationsPage() {
   const queryClient = useQueryClient();
   const [isSending, setIsSending] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
-  const [form, setForm] = useState<{ email: string; role: UserRole }>({ email: '', role: 'SalesManager' });
+  const [form, setForm] = useState<{ email: string; role: string }>({ email: '', role: '' });
 
   const { data: invites = [], isLoading } = useQuery({
     queryKey: ['invitations'],
     queryFn: invitationsApi.getAll,
   });
 
+  const { data: allowedRolesData } = useQuery({
+    queryKey: ['invitations', 'allowed-roles'],
+    queryFn: invitationsApi.getAllowedRoles,
+    staleTime: 5 * 60 * 1000,
+  });
+  const allowedRoles = allowedRolesData?.allowedRoles ?? ['SalesManager', 'ROP'];
+
+  // Set default role once allowed roles are loaded
+  const openModal = () => {
+    setForm({ email: '', role: allowedRoles[0] ?? 'SalesManager' });
+    setGeneratedLink(null);
+    setIsSending(true);
+  };
+
   const sendMutation = useMutation({
     mutationFn: invitationsApi.send,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['invitations'] });
-      setGeneratedLink(data.inviteLink);
+      // Extract token from backend URL and build frontend accept-invite link
+      try {
+        const backendUrl = new URL(data.inviteLink);
+        const token = backendUrl.searchParams.get('token');
+        const frontendLink = token
+          ? `${window.location.origin}/accept-invite?token=${token}`
+          : data.inviteLink;
+        setGeneratedLink(frontendLink);
+      } catch {
+        setGeneratedLink(data.inviteLink);
+      }
       toast.success('Taklifnoma yaratildi');
-      // We don't reset isSending yet so the user can see the link
     },
     onError: () => toast.error('Taklifnoma yuborishda xatolik yuz berdi'),
   });
@@ -56,7 +78,7 @@ export default function InvitationsPage() {
            <p className="text-sm text-[var(--color-text-muted)]">Invite new members to join your organization.</p>
         </div>
         <button 
-          onClick={() => setIsSending(true)}
+          onClick={openModal}
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-white shadow-glow-soft hover:shadow-glow transition-all active:scale-[0.98]"
         >
           <UserPlus size={18} /> Invite New Member
@@ -238,32 +260,38 @@ export default function InvitationsPage() {
                    </div>
                    
                    <div>
-                      <label className="label-eyebrow mb-1.5 block">System Role</label>
-                      <div className="grid grid-cols-1 gap-2">
-                         {(['SalesManager', 'ROP', 'CEO'] as const).map((role) => (
-                           <button
-                             key={role}
-                             type="button"
-                             onClick={() => setForm({...form, role})}
-                             className={cn(
-                               "flex items-center justify-between p-3 rounded-xl border transition-all text-left",
-                               form.role === role 
-                                 ? "bg-[var(--color-accent-muted)] border-[var(--color-accent)]/50" 
-                                 : "glass border-white/5 hover:border-white/20"
-                             )}
-                           >
-                             <div>
-                                <p className="text-sm font-bold">{role}</p>
-                                <p className="text-[10px] text-[var(--color-text-muted)]">
-                                   {role === 'CEO' ? 'Full administrative access' : 
-                                    role === 'ROP' ? 'Department management access' : 'Personal performance dashboard'}
-                                </p>
-                             </div>
-                             {form.role === role && <CheckCircle2 size={16} className="text-[var(--color-accent)]" />}
-                           </button>
-                         ))}
-                      </div>
-                   </div>
+                       <label className="label-eyebrow mb-1.5 block">System Role</label>
+                       {allowedRoles.length === 0 ? (
+                         <p className="text-sm text-[var(--color-text-muted)] py-3 text-center">
+                           Invite qilishga ruxsat yo'q
+                         </p>
+                       ) : (
+                       <div className="grid grid-cols-1 gap-2">
+                          {allowedRoles.map((role) => (
+                            <button
+                              key={role}
+                              type="button"
+                              onClick={() => setForm({...form, role})}
+                              className={cn(
+                                "flex items-center justify-between p-3 rounded-xl border transition-all text-left",
+                                form.role === role 
+                                  ? "bg-[var(--color-accent-muted)] border-[var(--color-accent)]/50" 
+                                  : "glass border-white/5 hover:border-white/20"
+                              )}
+                            >
+                              <div>
+                                 <p className="text-sm font-bold">{role}</p>
+                                 <p className="text-[10px] text-[var(--color-text-muted)]">
+                                    {role === 'CEO' ? 'Full administrative access' : 
+                                     role === 'ROP' ? 'Department management access' : 'Personal performance dashboard'}
+                                 </p>
+                              </div>
+                              {form.role === role && <CheckCircle2 size={16} className="text-[var(--color-accent)]" />}
+                            </button>
+                          ))}
+                       </div>
+                       )}
+                    </div>
 
                    <div className="pt-4 flex gap-3">
                       <button type="button" onClick={() => setIsSending(false)} className="flex-1 py-2.5 text-sm font-medium border border-white/10 rounded-xl hover:bg-white/5 transition-colors">
@@ -271,8 +299,8 @@ export default function InvitationsPage() {
                       </button>
                       <button 
                          type="submit"
-                         disabled={sendMutation.isPending}
-                         className="flex-1 py-2.5 text-sm font-bold bg-gradient-brand rounded-xl text-white shadow-glow-soft hover:shadow-glow transition-all flex items-center justify-center gap-2"
+                         disabled={sendMutation.isPending || !form.role}
+                         className="flex-1 py-2.5 text-sm font-bold bg-gradient-brand rounded-xl text-white shadow-glow-soft hover:shadow-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                          {sendMutation.isPending ? 'Yuborilmoqda...' : <><Send size={16} /> Taklifnoma yuborish</>}
                       </button>

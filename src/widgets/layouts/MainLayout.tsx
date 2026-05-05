@@ -42,7 +42,7 @@ export function MainLayout() {
       >
         <Header onMenuClick={() => setIsMobileMenuOpen(true)} />
         
-        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 animate-fade-in">
+        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
           <div className="mx-auto w-full max-w-[1400px]">
             <Outlet />
           </div>

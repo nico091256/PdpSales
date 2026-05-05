@@ -17,6 +17,7 @@ export interface RegisterRequest {
 export interface UserInfo {
   id: string;
   fullName?: string;
+  email?: string;
   role?: string;
   companyId: string;
   theme?: string;

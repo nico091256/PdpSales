@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { callsApi } from '@entities/call/api/callsApi';
 import { callLogsApi } from '@entities/call-log/api/callLogsApi';
+import { useAuthStore } from '@entities/auth';
 import { 
   Phone, 
   PhoneCall, 
@@ -22,12 +23,19 @@ import { KpiCard } from '@shared/ui/KpiCard';
 
 export default function CallLogsPage() {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const role = user?.role;
   const [isLogging, setIsLogging] = useState(false);
   const [form, setForm] = useState({ phone: '', note: '', outcome: 'Connected', meetingRequested: false });
 
+  // Only CEO → /api/v1/calls (all managers)
+  // ROP + SalesManager → /api/v1/calls/me (own data)
   const { data: summary, isLoading } = useQuery({
-    queryKey: ['calls-summary'],
-    queryFn: () => callsApi.getSummary(),
+    queryKey: ['calls-summary', role],
+    queryFn: () =>
+      role === 'CEO'
+        ? callsApi.getSummary()
+        : callsApi.getMySummary(),
   });
 
   const logMutation = useMutation({
@@ -86,12 +94,15 @@ export default function CallLogsPage() {
            <h1 className="text-2xl font-bold tracking-tight">Call Analytics</h1>
            <p className="text-sm text-[var(--color-text-muted)]">Track outreach efficiency and call outcomes.</p>
         </div>
-        <button 
-          onClick={() => setIsLogging(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-white shadow-glow-soft hover:shadow-glow transition-all active:scale-[0.98]"
-        >
-          <Plus size={18} /> Log New Call
-        </button>
+        {/* Only SalesManager can log calls — CEO/ROP are read-only */}
+        {role === 'SalesManager' && (
+          <button
+            onClick={() => setIsLogging(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-brand px-5 py-2.5 text-sm font-semibold text-white shadow-glow-soft hover:shadow-glow transition-all active:scale-[0.98]"
+          >
+            <Plus size={18} /> Log New Call
+          </button>
+        )}
       </div>
 
       {/* Stats Grid */}

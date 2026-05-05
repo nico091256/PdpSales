@@ -6,6 +6,17 @@ import { authApi } from '@entities/auth/api/authApi';
 import { useAuthStore } from '@entities/auth';
 import { UserRole } from '@shared/api/types';
 
+// Reusable pill input wrapper style
+const pillField = {
+  background: '#1a1d27',
+  border: '1px solid rgba(255,255,255,0.07)',
+} as React.CSSProperties;
+
+const labelStyle = {
+  color: 'rgba(255,255,255,0.5)',
+  letterSpacing: '0.12em',
+} as React.CSSProperties;
+
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setTokens, setUser } = useAuthStore();
@@ -20,16 +31,16 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validations
+
     if (!form.fullName || !form.email || !form.password || !form.companyName) {
-      toast.error('Barcha maydonlarni to\'ldiring');
+      toast.error("Barcha maydonlarni to'ldiring");
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -37,12 +48,12 @@ export default function RegisterPage() {
       return;
     }
     if (form.password.length < 6) {
-      toast.error('Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
+      toast.error("Parol kamida 6 ta belgidan iborat bo'lishi kerak");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       const data = await authApi.register({
         fullName: form.fullName,
@@ -62,16 +73,14 @@ export default function RegisterPage() {
       navigate('/dashboard');
     } catch (err: any) {
       const status = err.response?.status;
-      // Extract robust error message
       const errorData = err.response?.data;
-      let msg = 'Ro\'yxatdan o\'tishda xato yuz berdi.';
-      
+      let msg = "Ro'yxatdan o'tishda xato yuz berdi.";
+
       if (errorData) {
         msg = errorData.detail || errorData.title || errorData.message || msg;
-        // Handle ASP.NET Validation Errors
         if (errorData.errors) {
           const firstError = Object.values(errorData.errors)[0];
-          if (Array.isArray(firstError)) msg = firstError[0];
+          if (Array.isArray(firstError)) msg = firstError[0] as string;
         }
       } else if (err.message) {
         msg = err.message;
@@ -84,12 +93,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--color-bg-primary)] relative overflow-hidden">
-      {/* Decorative background elements */}
+    <div
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+      style={{
+        backgroundColor: '#0F1117',
+        backgroundImage:
+          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.14), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139,92,246,0.10), transparent)',
+      }}
+    >
+      {/* Decorative blobs */}
       <div className="absolute top-[-10%] right-[-10%] h-[40%] w-[40%] bg-[var(--color-accent)] opacity-10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] h-[40%] w-[40%] bg-[var(--color-accent-purple)] opacity-10 blur-[120px] pointer-events-none" />
-      
-      <div className="w-full max-w-[440px] animate-rise relative z-10">
+
+      <div className="w-full max-w-[480px] animate-rise relative z-10">
+        {/* Logo */}
         <div className="flex items-center gap-3 mb-10 justify-center sm:justify-start">
           <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-glow animate-pulse-soft">
             <TrendingUp size={20} className="text-white" />
@@ -103,16 +120,17 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Row 1: Full Name + Company */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="label-eyebrow">Full Name</label>
-              <div className="glass-strong px-4 py-3 rounded-2xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/10 transition-all">
-                <User size={18} className="text-[var(--color-text-muted)]" />
-                <input 
+              <label className="label-eyebrow" style={labelStyle}>Full Name</label>
+              <div style={pillField} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
+                <User size={17} className="text-[var(--color-text-muted)] shrink-0" />
+                <input
                   required
                   type="text"
                   placeholder="John Doe"
-                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/20"
+                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/25"
                   value={form.fullName}
                   onChange={set('fullName')}
                 />
@@ -120,14 +138,14 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="label-eyebrow">Company Name</label>
-              <div className="glass-strong px-4 py-3 rounded-2xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/10 transition-all">
-                <Building2 size={18} className="text-[var(--color-text-muted)]" />
-                <input 
+              <label className="label-eyebrow" style={labelStyle}>Company Name</label>
+              <div style={pillField} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
+                <Building2 size={17} className="text-[var(--color-text-muted)] shrink-0" />
+                <input
                   required
                   type="text"
                   placeholder="Acme Corp"
-                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/20"
+                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/25"
                   value={form.companyName}
                   onChange={set('companyName')}
                 />
@@ -135,94 +153,101 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {/* Email */}
           <div className="space-y-2">
-            <label className="label-eyebrow">Email Address</label>
-            <div className="glass-strong px-4 py-3 rounded-2xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/10 transition-all">
-              <Mail size={18} className="text-[var(--color-text-muted)]" />
-              <input 
+            <label className="label-eyebrow" style={labelStyle}>Email Address</label>
+            <div style={pillField} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
+              <Mail size={17} className="text-[var(--color-text-muted)] shrink-0" />
+              <input
                 required
                 type="email"
                 placeholder="john@company.com"
-                className="bg-transparent text-sm w-full outline-none text-white placeholder-white/20"
+                className="bg-transparent text-sm w-full outline-none text-white placeholder-white/25"
                 value={form.email}
                 onChange={set('email')}
               />
             </div>
           </div>
 
+          {/* Row 2: Password + Confirm */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="label-eyebrow">Password</label>
-              <div className="glass-strong px-4 py-3 rounded-2xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/10 transition-all">
-                <Lock size={18} className="text-[var(--color-text-muted)]" />
-                <input 
+              <label className="label-eyebrow" style={labelStyle}>Password</label>
+              <div style={pillField} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
+                <Lock size={17} className="text-[var(--color-text-muted)] shrink-0" />
+                <input
                   required
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/20"
+                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/25"
                   value={form.password}
                   onChange={set('password')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[var(--color-text-muted)] hover:text-white transition-colors"
+                  className="text-[var(--color-text-muted)] hover:text-white transition-colors shrink-0"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="label-eyebrow">Confirm Password</label>
-              <div className="glass-strong px-4 py-3 rounded-2xl flex items-center gap-3 border-white/5 focus-within:border-[var(--color-accent)]/50 focus-within:ring-4 focus-within:ring-[var(--color-accent)]/10 transition-all">
-                <Lock size={18} className="text-[var(--color-text-muted)]" />
-                <input 
+              <label className="label-eyebrow" style={labelStyle}>Confirm Password</label>
+              <div style={pillField} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
+                <Lock size={17} className="text-[var(--color-text-muted)] shrink-0" />
+                <input
                   required
-                  type={showPassword ? 'text' : 'password'}
+                  type={showConfirm ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/20"
+                  className="bg-transparent text-sm w-full outline-none text-white placeholder-white/25"
                   value={form.confirmPassword}
                   onChange={set('confirmPassword')}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-[var(--color-text-muted)] hover:text-white transition-colors"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="text-[var(--color-text-muted)] hover:text-white transition-colors shrink-0"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Role */}
           <div className="space-y-2">
-            <label className="label-eyebrow">Organization Role</label>
+            <label className="label-eyebrow" style={labelStyle}>Organization Role</label>
             <div className="relative">
               <select
                 value={form.role}
                 onChange={set('role')}
-                className="w-full px-4 py-3 rounded-2xl glass-strong border-white/5 text-sm text-white outline-none focus:border-[var(--color-accent)]/50 focus:ring-4 focus:ring-[var(--color-accent)]/10 transition-all cursor-pointer appearance-none"
+                style={{ ...pillField }}
+                className="w-full px-5 py-3.5 rounded-full text-sm text-white outline-none focus:border-[var(--color-accent)]/40 focus:ring-2 focus:ring-[var(--color-accent)]/15 transition-all cursor-pointer appearance-none"
               >
                 <option value="CEO">CEO / Founder</option>
                 <option value="ROP">ROP / Head of Sales</option>
                 <option value="SalesManager">Sales Manager</option>
               </select>
-              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none" />
+              <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none" />
             </div>
           </div>
 
-          <button 
-             type="submit"
-             disabled={loading}
-             className="w-full py-4 mt-6 rounded-2xl bg-gradient-brand text-white font-bold shadow-glow-soft hover:shadow-glow hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 mt-4 rounded-full bg-gradient-brand text-white font-bold shadow-glow-soft hover:shadow-glow hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >
-             {loading ? <Loader2 className="animate-spin" size={20} /> : (
-               <>
-                 Create Account
-                 <TrendingUp size={18} />
-               </>
-             )}
+            {loading ? (
+              <Loader2 className="animate-spin" size={20} />
+            ) : (
+              <>
+                Create Account
+                <TrendingUp size={18} />
+              </>
+            )}
           </button>
         </form>
 
@@ -238,4 +263,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

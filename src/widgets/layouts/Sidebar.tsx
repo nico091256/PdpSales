@@ -8,8 +8,6 @@ import {
   Trophy,
   Users,
   Mail,
-  Settings,
-  User,
   LogOut,
   Zap,
   ChevronLeft,
@@ -18,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn, getInitials } from '@shared/lib/utils';
 import { useAuthStore } from '@entities/auth';
+import { useI18n } from '@app/providers/I18nProvider';
 import toast from 'react-hot-toast';
 
 interface SidebarProps {
@@ -30,60 +29,56 @@ interface SidebarProps {
 interface NavLinkItem {
   to: string;
   icon: React.FC<{ size?: number; strokeWidth?: number; className?: string }>;
-  label: string;
-  badge?: string;
+  labelKey: string;
   dot?: boolean;
-  roles?: string[]; // Allowed roles for this link
+  roles?: string[];
 }
 
-const navItems: { section: string; links: NavLinkItem[] }[] = [
+const navItems: { sectionKey: string; links: NavLinkItem[] }[] = [
   {
-    section: 'Overview',
+    sectionKey: 'layout.overview',
     links: [
-      { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['CEO', 'ROP', 'SalesManager'] },
-      { to: '/rankings', icon: Trophy, label: 'Rankings', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/dashboard',    icon: LayoutDashboard, labelKey: 'layout.dashboard', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/rankings',     icon: Trophy,          labelKey: 'layout.rankings',  roles: ['CEO', 'ROP', 'SalesManager'] },
     ],
   },
   {
-    section: 'Management',
+    sectionKey: 'layout.management',
     links: [
-      { to: '/users', icon: Users, label: 'Users', roles: ['CEO', 'ROP'] },
-      { to: '/appointments', icon: Calendar, label: 'Appointments', roles: ['CEO', 'ROP', 'SalesManager'] },
-      { to: '/call-logs', icon: Phone, label: 'Call Logs', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/users',        icon: Users,    labelKey: 'layout.users',        roles: ['CEO', 'ROP'] },
+      { to: '/appointments', icon: Calendar, labelKey: 'layout.appointments', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/call-logs',    icon: Phone,    labelKey: 'layout.callLogs',     roles: ['CEO', 'ROP', 'SalesManager'] },
     ],
   },
   {
-    section: 'Operations',
+    sectionKey: 'layout.operations',
     links: [
-      { to: '/alerts', icon: Bell, label: 'Alerts', dot: true, roles: ['CEO', 'ROP', 'SalesManager'] },
-      { to: '/invitations', icon: Mail, label: 'Invitations', roles: ['CEO', 'ROP'] },
-    ],
-  },
-  {
-    section: 'Settings',
-    links: [
-      { to: '/settings', icon: Settings, label: 'Settings', roles: ['CEO', 'ROP', 'SalesManager'] },
-      { to: '/profile', icon: User, label: 'Profile', roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/alerts',      icon: Bell, labelKey: 'layout.alerts',      dot: true, roles: ['CEO', 'ROP', 'SalesManager'] },
+      { to: '/invitations', icon: Mail, labelKey: 'layout.invitations',            roles: ['CEO', 'ROP'] },
     ],
   },
 ];
 
 export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: SidebarProps) {
   const { user, logout } = useAuthStore();
+  const { t } = useI18n();
   const role = user?.role || 'SalesManager';
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    toast.success('Xush qoling!');
+    toast.success('👋');
     navigate('/login');
   };
 
-  // Filter items based on user role
-  const filteredNavItems = navItems.map(section => ({
-    ...section,
-    links: section.links.filter(link => !link.roles || link.roles.includes(role))
-  })).filter(section => section.links.length > 0);
+  const filteredNavItems = navItems
+    .map((section) => ({
+      ...section,
+      links: section.links.filter((link) => !link.roles || link.roles.includes(role)),
+    }))
+    .filter((section) => section.links.length > 0);
+
+  const isExpanded = !collapsed || isMobileOpen;
 
   return (
     <aside
@@ -92,23 +87,28 @@ export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: Si
         'lg:translate-x-0',
         isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         collapsed ? 'w-[72px]' : 'w-[260px]',
-        isMobileOpen && 'w-[260px] translate-x-0'
+        isMobileOpen && 'w-[260px] translate-x-0',
       )}
     >
-      {/* Logo Section */}
-      <div className={cn(
-        'flex h-16 items-center gap-3 border-b border-[var(--color-border)] px-5',
-        collapsed && !isMobileOpen && 'justify-center px-0'
-      )}>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-brand shadow-glow-soft animate-pulse-soft">
+      {/* ── Logo ── */}
+      <div
+        className={cn(
+          'flex h-16 shrink-0 items-center gap-3 border-b border-[var(--color-border)] px-5',
+          !isExpanded && 'justify-center px-0',
+        )}
+      >
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-brand shadow-glow-soft">
           <Zap className="h-5 w-5 text-white" fill="currentColor" />
         </div>
-        {(!collapsed || isMobileOpen) && (
-          <div className="flex flex-1 items-center justify-between">
-            <span className="text-[16px] font-bold tracking-tight text-[var(--color-text-primary)]">SalesPulse</span>
-            <button 
-              onClick={isMobileOpen ? onMobileClose : onToggle} 
-              className="rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-white/5 hover:text-[var(--color-text-primary)]"
+
+        {isExpanded && (
+          <div className="flex flex-1 items-center justify-between min-w-0">
+            <span className="text-[15px] font-bold tracking-tight text-[var(--color-text-primary)]">
+              SalesPulse
+            </span>
+            <button
+              onClick={isMobileOpen ? onMobileClose : onToggle}
+              className="rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
             >
               {isMobileOpen ? <X size={18} /> : <ChevronLeft size={16} />}
             </button>
@@ -116,47 +116,64 @@ export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: Si
         )}
       </div>
 
-      {collapsed && !isMobileOpen && (
-        <button onClick={onToggle} className="mx-auto mt-3 rounded-md p-1.5 text-[var(--color-text-muted)] hover:bg-white/5 hover:text-[var(--color-text-primary)]">
+      {/* Collapsed expand button */}
+      {!isExpanded && (
+        <button
+          onClick={onToggle}
+          className="mx-auto mt-3 rounded-md p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+        >
           <ChevronRight size={16} />
         </button>
       )}
 
-      {/* Navigation */}
-      <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {filteredNavItems.map(({ section, links }) => (
-          <div key={section} className="mb-5">
-            {(!collapsed || isMobileOpen) && (
-              <p className="label-eyebrow mb-2 px-3">{section}</p>
+      {/* ── Navigation ── */}
+      <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        {filteredNavItems.map(({ sectionKey, links }) => (
+          <div key={sectionKey}>
+            {isExpanded && (
+              <p className="label-eyebrow mb-2 px-3">{t(sectionKey)}</p>
             )}
             <ul className="space-y-0.5">
-              {links.map(({ to, icon: Icon, label, dot, badge }) => (
+              {links.map(({ to, icon: Icon, labelKey, dot }) => (
                 <li key={to}>
                   <NavLink
                     to={to}
+                    title={!isExpanded ? t(labelKey) : undefined}
                     className={({ isActive }) =>
                       cn(
-                        'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
+                        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200',
                         isActive
-                          ? 'bg-gradient-brand-soft text-[var(--color-text-primary)] shadow-glow-soft'
-                          : 'text-[var(--color-text-secondary)] hover:bg-white/5 hover:text-[var(--color-text-primary)]',
-                        collapsed && !isMobileOpen && 'justify-center px-0'
+                          ? 'bg-[var(--color-accent-muted)] text-[var(--color-text-primary)]'
+                          : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]',
+                        !isExpanded && 'justify-center px-0',
                       )
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        {isActive && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[var(--color-accent)]" />}
-                        <Icon className={cn('h-[18px] w-[18px] shrink-0', isActive && 'text-[var(--color-accent)]')} strokeWidth={isActive ? 2 : 1.5} />
-                        {(!collapsed || isMobileOpen) && <span className="flex-1 truncate">{label}</span>}
-                        {(!collapsed || isMobileOpen) && badge && (
-                          <span className="rounded-md bg-[var(--color-accent-muted)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--color-accent)]">{badge}</span>
+                        {/* Active indicator bar */}
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--color-accent)]" />
+                        )}
+                        <Icon
+                          className={cn(
+                            'h-[18px] w-[18px] shrink-0 transition-colors',
+                            isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text-secondary)]',
+                          )}
+                          strokeWidth={isActive ? 2 : 1.5}
+                        />
+                        {isExpanded && (
+                          <span className="flex-1 truncate font-medium">{t(labelKey)}</span>
                         )}
                         {dot && (
-                          <span className={cn(
-                            "rounded-full bg-[var(--color-danger)]",
-                            collapsed && !isMobileOpen ? "absolute right-1.5 top-1.5 h-1.5 w-1.5" : "h-1.5 w-1.5 animate-pulse-soft"
-                          )} />
+                          <span
+                            className={cn(
+                              'rounded-full bg-[var(--color-danger)]',
+                              !isExpanded
+                                ? 'absolute right-1.5 top-1.5 h-1.5 w-1.5'
+                                : 'h-1.5 w-1.5',
+                            )}
+                          />
                         )}
                       </>
                     )}
@@ -168,34 +185,56 @@ export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: Si
         ))}
       </nav>
 
-      {/* User Footer */}
-      <div className={cn('border-t border-[var(--color-border)] p-3', collapsed && !isMobileOpen ? 'flex flex-col items-center gap-2' : '')}>
-        <div className={cn(
-          'flex items-center gap-3 rounded-lg p-2 transition-colors',
-          (!collapsed || isMobileOpen) && 'bg-white/[0.03] hover:bg-white/[0.05]'
-        )}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-brand font-bold text-white text-[11px] ring-2 ring-[var(--color-bg-primary)]/40">
+      {/* ── User Footer ── */}
+      <div
+        className={cn(
+          'shrink-0 border-t border-[var(--color-border)] p-3',
+          !isExpanded && 'flex flex-col items-center gap-2',
+        )}
+      >
+        {/* Profile button */}
+        <button
+          id="sidebar-profile-btn"
+          onClick={() => navigate('/account/profile')}
+          className={cn(
+            'flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-[var(--color-bg-hover)]',
+            !isExpanded && 'w-auto justify-center',
+          )}
+          title={!isExpanded ? (user?.fullName ?? 'Profile') : undefined}
+        >
+          {/* Avatar */}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-[11px] font-bold text-white ring-2 ring-[var(--color-accent)]/20">
             {user?.fullName ? getInitials(user.fullName) : 'U'}
           </div>
-          {(!collapsed || isMobileOpen) && (
+
+          {isExpanded && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-medium text-[var(--color-text-primary)]">{user?.fullName ?? 'User'}</p>
-              <p className="truncate text-[11px] text-[var(--color-text-muted)]">{user?.role}</p>
+              <p className="truncate text-[13px] font-semibold text-[var(--color-text-primary)] leading-tight">
+                {user?.fullName ?? 'User'}
+              </p>
+              <p className="truncate text-[11px] text-[var(--color-text-muted)] leading-tight mt-0.5">
+                {user?.email ?? user?.role ?? ''}
+              </p>
             </div>
           )}
-          {(!collapsed || isMobileOpen) && (
-            <button 
-              onClick={handleLogout}
-              className="rounded-md p-1.5 text-[var(--color-text-muted)] transition-colors hover:bg-white/5 hover:text-[var(--color-danger)]"
-            >
-              <LogOut size={16} />
-            </button>
-          )}
-        </div>
-        {collapsed && !isMobileOpen && (
-          <button 
+        </button>
+
+        {/* Logout */}
+        {isExpanded ? (
+          <button
+            id="sidebar-logout-btn"
             onClick={handleLogout}
-            className="rounded-md p-2 text-[var(--color-text-muted)] hover:bg-white/5 hover:text-[var(--color-danger)]"
+            className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[var(--color-text-muted)] text-xs transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)]"
+          >
+            <LogOut size={15} />
+            <span>{t('common.logout')}</span>
+          </button>
+        ) : (
+          <button
+            id="sidebar-logout-btn-collapsed"
+            onClick={handleLogout}
+            title={t('common.logout')}
+            className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)]"
           >
             <LogOut size={18} />
           </button>

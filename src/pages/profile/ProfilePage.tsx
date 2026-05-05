@@ -1,25 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { profileApi } from '@entities/user/api/profileApi';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Camera, 
-  Shield, 
-  Building, 
+import {
+  User,
+  Mail,
+  Phone,
+  Camera,
+  Shield,
+  Building,
   Globe,
   Loader2,
   X,
-  Check
+  Check,
 } from 'lucide-react';
 import { cn } from '@shared/lib/utils';
 import { useAuthStore } from '@entities/auth';
+import { useI18n } from '@app/providers/I18nProvider';
 import toast from 'react-hot-toast';
 
 export default function ProfilePage() {
   const queryClient = useQueryClient();
   const { setUser, user: authUser } = useAuthStore();
+  const { t } = useI18n();
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,11 +61,11 @@ export default function ProfilePage() {
           photoUrl: updatedProfile.photoUrl || authUser.photoUrl,
         });
       }
-      toast.success('Profil muvaffaqiyatli yangilandi');
+      toast.success(t('profile.saveChanges') + ' ✓');
       setIsEditing(false);
     },
     onError: (err: any) => {
-      const msg = err.response?.data?.detail || 'Profilni yangilashda xatolik yuz berdi';
+      const msg = err.response?.data?.detail || t('common.error.loadFailed');
       toast.error(msg);
     },
   });
@@ -75,9 +77,9 @@ export default function ProfilePage() {
       if (authUser) {
         setUser({ ...authUser, photoUrl: data.photoUrl });
       }
-      toast.success('Rasm yangilandi');
+      toast.success('✓');
     },
-    onError: () => toast.error('Rasmni yuklashda xatolik'),
+    onError: () => toast.error(t('common.error.loadFailed')),
   });
 
   const handlePhotoClick = () => {
@@ -147,27 +149,29 @@ export default function ProfilePage() {
               </p>
             </div>
             {!isEditing ? (
-              <button 
+              <button
+                id="profile-edit-btn"
                 onClick={() => setIsEditing(true)}
-                className="px-5 py-2.5 rounded-xl glass border-white/[0.08] text-sm font-semibold hover:bg-white/5 transition-all hover:border-white/20"
+                className="px-5 py-2.5 rounded-xl glass text-sm font-semibold hover:bg-[var(--color-bg-hover)] transition-all"
               >
-                Edit Profile
+                {t('profile.editProfile')}
               </button>
             ) : (
               <div className="flex gap-3">
-                <button 
+                <button
                   onClick={() => setIsEditing(false)}
-                  className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 transition-colors flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl border border-[var(--color-border)] text-sm font-medium hover:bg-[var(--color-bg-hover)] transition-colors flex items-center gap-2 text-[var(--color-text-secondary)]"
                 >
-                  <X size={16} /> Bekor qilish
+                  <X size={16} /> {t('common.cancel')}
                 </button>
-                <button 
+                <button
+                  id="profile-save-btn"
                   onClick={() => updateMutation.mutate(form)}
                   disabled={updateMutation.isPending}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-bold shadow-glow-soft hover:shadow-glow flex items-center gap-2 transition-all active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-bold shadow-glow-soft hover:shadow-glow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-60"
                 >
                   {updateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                  Saqlash
+                  {t('profile.saveChanges')}
                 </button>
               </div>
             )}
@@ -178,16 +182,16 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Personal Info */}
         <div className="card-surface rounded-2xl p-6 space-y-6 border-white/[0.05] card-hover">
-          <h3 className="text-lg font-bold flex items-center gap-2">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--color-text-primary)]">
             <div className="p-2 rounded-lg bg-[var(--color-accent-muted)]">
               <User size={18} className="text-[var(--color-accent)]" />
             </div>
-            Personal Information
+            {t('profile.fullName')}
           </h3>
           
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label className="label-eyebrow">Full Name</label>
+              <label className="label-eyebrow">{t('profile.fullName')}</label>
               <div className={cn(
                 "glass rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-300",
                 isEditing ? "bg-white/[0.04] border-[var(--color-accent)]/30 ring-2 ring-[var(--color-accent)]/10" : "border-transparent"
@@ -204,7 +208,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="label-eyebrow">Email Address</label>
+              <label className="label-eyebrow">{t('profile.email')}</label>
               <div className="glass rounded-xl px-4 py-3 flex items-center gap-3 bg-white/[0.02] border-transparent cursor-not-allowed">
                 <Mail size={18} className="text-[var(--color-text-muted)]" />
                 <input 
@@ -216,7 +220,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="label-eyebrow">Phone Number</label>
+              <label className="label-eyebrow">{t('profile.phone')}</label>
               <div className={cn(
                 "glass rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-300",
                 isEditing ? "bg-white/[0.04] border-[var(--color-accent)]/30 ring-2 ring-[var(--color-accent)]/10" : "border-transparent"
@@ -236,11 +240,11 @@ export default function ProfilePage() {
 
         {/* Integration & Organization */}
         <div className="card-surface rounded-2xl p-6 space-y-6 border-white/[0.05] card-hover">
-          <h3 className="text-lg font-bold flex items-center gap-2">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-[var(--color-text-primary)]">
             <div className="p-2 rounded-lg bg-[var(--color-info-muted)]">
               <Building size={18} className="text-[var(--color-info)]" />
             </div>
-            Organization & Tools
+            {t('profile.role')}
           </h3>
           
           <div className="space-y-5">
@@ -257,7 +261,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="label-eyebrow">CRM Integration ID</label>
+              <label className="label-eyebrow">CRM ID</label>
               <div className={cn(
                 "glass rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-300",
                 isEditing ? "bg-white/[0.04] border-[var(--color-info)]/30 ring-2 ring-[var(--color-info)]/10" : "border-transparent"
@@ -274,7 +278,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="label-eyebrow">Telephony Extension</label>
+              <label className="label-eyebrow">Telephony ID</label>
               <div className={cn(
                 "glass rounded-xl px-4 py-3 flex items-center gap-3 transition-all duration-300",
                 isEditing ? "bg-white/[0.04] border-[var(--color-info)]/30 ring-2 ring-[var(--color-info)]/10" : "border-transparent"

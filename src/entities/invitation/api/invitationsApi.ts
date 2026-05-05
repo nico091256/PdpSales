@@ -5,6 +5,9 @@ export const invitationsApi = {
   getAll: () =>
     apiClient.get<InviteListItem[]>('/api/v1/invites').then((r) => r.data),
 
+  getAllowedRoles: () =>
+    apiClient.get<{ allowedRoles: string[] }>('/api/v1/invites/allowed-roles').then((r) => r.data),
+
   send: (data: SendInvitationRequest) =>
     apiClient.post<SendInvitationResponse>('/api/v1/invites', data).then((r) => r.data),
 
