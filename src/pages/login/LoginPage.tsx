@@ -1,50 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Zap, Eye, EyeOff, Loader2, Shield, Globe, Star, Mail, Lock } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { authApi } from '@entities/auth/api/authApi';
-import { useAuthStore } from '@entities/auth';
-
+import { Zap, Shield, Globe, Star } from 'lucide-react';
+import { LoginForm } from '@features/auth/login/ui/LoginForm';
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const { setTokens, setUser } = useAuthStore();
-
-  const [form, setForm] = useState({ email: '', password: '', companySlug: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.email || !form.password) {
-      toast.error('Email va parolni kiriting');
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await authApi.login({
-        email: form.email,
-        password: form.password,
-        companySlug: form.companySlug || undefined,
-      });
-
-      const accessToken = data.token ?? '';
-      const refreshToken = data.refreshToken ?? '';
-
-      setTokens(accessToken, refreshToken);
-      if (data.user) setUser(data.user);
-
-      toast.success('Xush kelibsiz!');
-      navigate('/dashboard');
-    } catch (err: any) {
-      const status = err.response?.status;
-      const detail = err.response?.data?.detail || err.response?.data?.title || err.message;
-      toast.error(`${status ? `[${status}] ` : ''}${detail || 'Login xatosi. Ma\'lumotlarni tekshiring.'}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex overflow-hidden" style={{ backgroundColor: '#0F1117', backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.14), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(139,92,246,0.10), transparent)' }}>
       {/* Immersive Left Panel */}
@@ -105,7 +62,7 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 relative">
         <div className="absolute inset-0 lg:hidden bg-grid opacity-10" />
         
-        <div className="w-full max-w-[420px] animate-rise">
+        <div className="w-full max-w-[420px]">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
             <div className="w-10 h-10 bg-gradient-brand rounded-xl flex items-center justify-center shadow-glow">
@@ -114,80 +71,7 @@ export default function LoginPage() {
             <span className="text-xl font-bold text-white">SalesPulse</span>
           </div>
 
-          <div className="mb-10">
-             <h2 className="text-3xl font-bold text-white mb-2">Login to Platform</h2>
-             <p className="text-[var(--color-text-secondary)]">Enter your credentials to access your dashboard</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <label className="label-eyebrow" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing:'0.12em' }}>Company Workspace</label>
-              <div style={{ background: '#1a1d27', border: '1px solid rgba(255,255,255,0.07)' }} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
-                 <Globe size={17} className="text-[var(--color-text-muted)] shrink-0" />
-                 <input
-                    type="text"
-                    value={form.companySlug}
-                    onChange={(e) => setForm((f) => ({ ...f, companySlug: e.target.value }))}
-                    placeholder="your-company-slug"
-                    className="w-full bg-transparent text-sm text-white placeholder-white/25 outline-none"
-                 />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="label-eyebrow" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing:'0.12em' }}>Email Address</label>
-              <div style={{ background: '#1a1d27', border: '1px solid rgba(255,255,255,0.07)' }} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
-                 <Mail size={17} className="text-[var(--color-text-muted)] shrink-0" />
-                 <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder="name@company.com"
-                    className="w-full bg-transparent text-sm text-white placeholder-white/25 outline-none"
-                 />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                 <label className="label-eyebrow" style={{ color: 'rgba(255,255,255,0.5)', letterSpacing:'0.12em' }}>Password</label>
-                 <a href="#" className="text-[12px] font-bold text-[var(--color-accent)] hover:underline">Forgot?</a>
-              </div>
-              <div style={{ background: '#1a1d27', border: '1px solid rgba(255,255,255,0.07)' }} className="rounded-full px-5 py-3.5 flex items-center gap-3 transition-all focus-within:border-[var(--color-accent)]/40 focus-within:ring-2 focus-within:ring-[var(--color-accent)]/15">
-                 <Lock size={17} className="text-[var(--color-text-muted)] shrink-0" />
-                 <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={form.password}
-                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                    placeholder="••••••••••••"
-                    className="w-full bg-transparent text-sm text-white placeholder-white/25 outline-none"
-                 />
-                 <button
-                   type="button"
-                   onClick={() => setShowPassword(!showPassword)}
-                   className="text-[var(--color-text-muted)] hover:text-white transition-colors shrink-0"
-                 >
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                 </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 mt-4 rounded-full bg-gradient-brand text-white font-bold shadow-glow-soft hover:shadow-glow hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3 disabled:opacity-60"
-            >
-              {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enter Dashboard'}
-            </button>
-          </form>
-
-          <div className="mt-10 pt-10 border-t border-white/[0.05] text-center">
-             <p className="text-sm text-[var(--color-text-muted)]">
-                Don't have an account yet? <Link to="/register" className="text-white font-bold hover:underline">Create Workspace</Link>
-             </p>
-          </div>
+          <LoginForm />
         </div>
       </div>
     </div>

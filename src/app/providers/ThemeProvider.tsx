@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { meApi } from '@entities/user/api/meApi';
 import { profileApi } from '@entities/user/api/profileApi';
+import toast from 'react-hot-toast';
 
 type ThemeMode = 'light' | 'dark' | 'custom';
 
@@ -59,8 +60,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const meQuery = useQuery({
     queryKey: ['me-theme'],
     queryFn: meApi.getMe,
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   });
 
@@ -78,6 +79,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     onSuccess: (nextTheme) => {
       setLocalTheme(nextTheme);
       applyTheme(nextTheme);
+    },
+    onError: () => {
+      toast.error('Theme sozlamalarini saqlashda xatolik');
     },
   });
 

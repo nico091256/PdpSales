@@ -60,3 +60,23 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength) + '…';
 }
+
+/**
+ * Validates that a URL is a safe image source (http/https only).
+ *
+ * WHY: User-provided photoUrl values are rendered directly into <img src>.
+ * A malicious value like `data:text/html,<script>...</script>` or
+ * `javascript:alert(1)` can execute code in some browser contexts.
+ * Restricting to http/https eliminates data: and javascript: URI attacks.
+ *
+ * Returns false for empty strings, malformed URLs, or non-http(s) schemes.
+ */
+export function isSafeImageUrl(url: string | undefined | null): boolean {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}

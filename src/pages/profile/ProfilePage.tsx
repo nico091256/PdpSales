@@ -1,6 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { profileApi } from '@entities/user/api/profileApi';
+import { useRef } from 'react';
 import {
   User,
   Mail,
@@ -13,74 +11,26 @@ import {
   X,
   Check,
 } from 'lucide-react';
-import { cn } from '@shared/lib/utils';
-import { useAuthStore } from '@entities/auth';
+import { cn, isSafeImageUrl } from '@shared/lib/utils';
 import { useI18n } from '@app/providers/I18nProvider';
-import toast from 'react-hot-toast';
+import { useProfileEdit } from '@features/user/edit/model/useProfileEdit';
 
 export default function ProfilePage() {
-  const queryClient = useQueryClient();
-  const { setUser, user: authUser } = useAuthStore();
   const { t } = useI18n();
-  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: profileApi.getProfile,
-  });
-
-  const [form, setForm] = useState({
-    fullName: '',
-    phoneNumber: '',
-    crmId: '',
-    telephonyId: '',
-  });
-
-  // Sync form when profile data is loaded
-  useEffect(() => {
-    if (profile && !isEditing) {
-      setForm({
-        fullName: profile.fullName || '',
-        phoneNumber: profile.phoneNumber || '',
-        crmId: profile.crmId || '',
-        telephonyId: profile.telephonyId || '',
-      });
-    }
-  }, [profile, isEditing]);
-
-  const updateMutation = useMutation({
-    mutationFn: profileApi.updateProfile,
-    onSuccess: (updatedProfile) => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      // Update global auth store to keep sidebar/header in sync
-      if (authUser) {
-        setUser({
-          ...authUser,
-          fullName: updatedProfile.fullName || authUser.fullName,
-          photoUrl: updatedProfile.photoUrl || authUser.photoUrl,
-        });
-      }
-      toast.success(t('profile.saveChanges') + ' ✓');
-      setIsEditing(false);
-    },
-    onError: (err: any) => {
-      const msg = err.response?.data?.detail || t('common.error.loadFailed');
-      toast.error(msg);
-    },
-  });
-
-  const photoMutation = useMutation({
-    mutationFn: profileApi.uploadPhoto,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      if (authUser) {
-        setUser({ ...authUser, photoUrl: data.photoUrl });
-      }
-      toast.success('✓');
-    },
-    onError: () => toast.error(t('common.error.loadFailed')),
-  });
+  
+  const {
+    profile,
+    isLoading,
+    isEditing,
+    setIsEditing,
+    form,
+    setForm,
+    updateProfile,
+    isUpdating,
+    uploadPhoto,
+    isUploading
+  } = useProfileEdit();
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -88,9 +38,9 @@ export default function ProfilePage() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      photoMutation.mutate(file);
-    }
+    if (!file) return;
+    uploadPhoto(file);
+    e.target.value = '';
   };
 
   if (isLoading) {
@@ -124,8 +74,8 @@ export default function ProfilePage() {
             <div className="relative group">
               <div className="h-24 w-24 rounded-full bg-gradient-brand p-1 shadow-2xl transition-transform group-hover:scale-105">
                 <div className="h-full w-full rounded-full bg-[var(--color-bg-secondary)] overflow-hidden flex items-center justify-center text-3xl font-bold">
-                  {profile?.photoUrl ? (
-                    <img src={profile.photoUrl} alt="" className="h-full w-full object-cover" />
+                  {isSafeImageUrl(profile?.photoUrl) ? (
+                    <img src={profile!.photoUrl!} alt="" className="h-full w-full object-cover" />
                   ) : (
                     profile?.fullName?.[0] || 'U'
                   )}
@@ -133,10 +83,10 @@ export default function ProfilePage() {
               </div>
               <button 
                 onClick={handlePhotoClick}
-                disabled={photoMutation.isPending}
+                disabled={isUploading}
                 className="absolute bottom-0 right-0 p-2 bg-[var(--color-accent)] text-white rounded-full shadow-glow-soft hover:scale-110 transition-transform active:scale-95"
               >
-                {photoMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+                {isUploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
               </button>
             </div>
           </div>
@@ -166,11 +116,11 @@ export default function ProfilePage() {
                 </button>
                 <button
                   id="profile-save-btn"
-                  onClick={() => updateMutation.mutate(form)}
-                  disabled={updateMutation.isPending}
+                  onClick={() => updateProfile()}
+                  disabled={isUpdating}
                   className="px-5 py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-bold shadow-glow-soft hover:shadow-glow flex items-center gap-2 transition-all active:scale-95 disabled:opacity-60"
                 >
-                  {updateMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                  {isUpdating ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                   {t('profile.saveChanges')}
                 </button>
               </div>

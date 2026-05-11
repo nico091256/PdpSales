@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -13,11 +13,12 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Loader2,
 } from 'lucide-react';
 import { cn, getInitials } from '@shared/lib/utils';
 import { useAuthStore } from '@entities/auth';
+import { useLogout } from '@features/auth/logout/model/useLogout';
 import { useI18n } from '@app/providers/I18nProvider';
-import toast from 'react-hot-toast';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -60,23 +61,20 @@ const navItems: { sectionKey: string; links: NavLinkItem[] }[] = [
 ];
 
 export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: SidebarProps) {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { t } = useI18n();
+  const { logout: handleLogout, isLoggingOut } = useLogout();
   const role = user?.role || 'SalesManager';
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    toast.success('👋');
-    navigate('/login');
-  };
-
-  const filteredNavItems = navItems
-    .map((section) => ({
-      ...section,
-      links: section.links.filter((link) => !link.roles || link.roles.includes(role)),
-    }))
-    .filter((section) => section.links.length > 0);
+  const filteredNavItems = useMemo(() => {
+    return navItems
+      .map((section) => ({
+        ...section,
+        links: section.links.filter((link) => !link.roles || link.roles.includes(role)),
+      }))
+      .filter((section) => section.links.length > 0);
+  }, [role, t]);
 
   const isExpanded = !collapsed || isMobileOpen;
 
@@ -224,19 +222,31 @@ export function Sidebar({ collapsed, onToggle, isMobileOpen, onMobileClose }: Si
           <button
             id="sidebar-logout-btn"
             onClick={handleLogout}
-            className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[var(--color-text-muted)] text-xs transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)]"
+            disabled={isLoggingOut}
+            aria-label={isLoggingOut ? 'Logging out...' : t('common.logout')}
+            className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-[var(--color-text-muted)] text-xs transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut size={15} />
-            <span>{t('common.logout')}</span>
+            {isLoggingOut ? (
+              <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <LogOut size={15} aria-hidden="true" />
+            )}
+            <span>{isLoggingOut ? 'Signing out...' : t('common.logout')}</span>
           </button>
         ) : (
           <button
             id="sidebar-logout-btn-collapsed"
             onClick={handleLogout}
+            disabled={isLoggingOut}
             title={t('common.logout')}
-            className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)]"
+            aria-label={isLoggingOut ? 'Logging out...' : t('common.logout')}
+            className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-danger-muted)] hover:text-[var(--color-danger)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut size={18} />
+            {isLoggingOut ? (
+              <Loader2 size={18} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <LogOut size={18} aria-hidden="true" />
+            )}
           </button>
         )}
       </div>

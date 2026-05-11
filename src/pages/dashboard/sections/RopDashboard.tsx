@@ -59,7 +59,7 @@ export function RopDashboard({ data, t }: Props) {
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} width={48} />
                   <Tooltip
                     contentStyle={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', borderRadius: '10px', fontSize: '12px' }}
-                    formatter={(v: number) => fmt(v)}
+                    formatter={(v) => [fmt(Number(v)), '']}
                   />
                   <Bar dataKey="plan" fill="var(--color-accent)" fillOpacity={0.4} radius={[4, 4, 0, 0]} />
                   <Bar dataKey="fact" fill="var(--color-success)" radius={[4, 4, 0, 0]} />

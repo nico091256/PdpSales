@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { TrendingUp, Loader2, User, Lock, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { invitationsApi } from '@entities/invitation/api/invitationsApi';
+import { validatePassword } from '@shared/lib/validation';
+import { isAxiosError } from 'axios';
 
 export default function AcceptInvitePage() {
   const [searchParams] = useSearchParams();
@@ -16,6 +18,14 @@ export default function AcceptInvitePage() {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Cleanup redirect timer if the component unmounts before it fires.
+  useEffect(() => {
+    return () => {
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -34,8 +44,9 @@ export default function AcceptInvitePage() {
       toast.error('Parollar mos kelmadi');
       return;
     }
-    if (form.password.length < 6) {
-      toast.error('Parol kamida 6 ta belgidan iborat bo\'lishi kerak');
+    const pwError = validatePassword(form.password);
+    if (pwError) {
+      toast.error(pwError);
       return;
     }
 
@@ -49,9 +60,11 @@ export default function AcceptInvitePage() {
 
       setSuccess(true);
       toast.success('Tabriklaymiz! Hisobingiz faollashtirildi.');
-      setTimeout(() => navigate('/login'), 3000);
-    } catch (err: any) {
-      const msg = err.response?.data?.detail ?? 'Taklifnomani qabul qilishda xatolik yuz berdi.';
+      redirectTimer.current = setTimeout(() => navigate('/login'), 3000);
+    } catch (err: unknown) {
+      const msg = isAxiosError(err)
+        ? ((err.response?.data as { detail?: string } | undefined)?.detail ?? err.message)
+        : 'Taklifnomani qabul qilishda xatolik yuz berdi.';
       toast.error(msg);
     } finally {
       setLoading(false);

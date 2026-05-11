@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { authApi } from '@entities/auth/api/authApi';
 import { useAuthStore } from '@entities/auth';
 import { UserRole } from '@shared/api/types';
+import { validatePassword, validateEmail } from '@shared/lib/validation';
+import { isAxiosError } from 'axios';
 
 // Reusable pill input wrapper style
 const pillField = {
@@ -47,8 +49,15 @@ export default function RegisterPage() {
       toast.error('Parollar mos kelmadi');
       return;
     }
-    if (form.password.length < 6) {
-      toast.error("Parol kamida 6 ta belgidan iborat bo'lishi kerak");
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      toast.error(emailError);
+      return;
+    }
+
+    const pwError = validatePassword(form.password);
+    if (pwError) {
+      toast.error(pwError);
       return;
     }
 
@@ -71,18 +80,29 @@ export default function RegisterPage() {
 
       toast.success('Hisob yaratildi! Xush kelibsiz.');
       navigate('/dashboard');
-    } catch (err: any) {
-      const status = err.response?.status;
-      const errorData = err.response?.data;
+    } catch (err: unknown) {
       let msg = "Ro'yxatdan o'tishda xato yuz berdi.";
+      let status: number | undefined;
 
-      if (errorData) {
-        msg = errorData.detail || errorData.title || errorData.message || msg;
-        if (errorData.errors) {
-          const firstError = Object.values(errorData.errors)[0];
-          if (Array.isArray(firstError)) msg = firstError[0] as string;
+      if (isAxiosError(err)) {
+        status = err.response?.status;
+        const errorData = err.response?.data as {
+          detail?: string;
+          title?: string;
+          message?: string;
+          errors?: Record<string, string[]>;
+        } | undefined;
+
+        if (errorData) {
+          msg = errorData.detail || errorData.title || errorData.message || msg;
+          if (errorData.errors) {
+            const firstError = Object.values(errorData.errors)[0];
+            if (Array.isArray(firstError)) msg = firstError[0];
+          }
+        } else {
+          msg = err.message;
         }
-      } else if (err.message) {
+      } else if (err instanceof Error) {
         msg = err.message;
       }
 

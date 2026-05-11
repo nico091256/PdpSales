@@ -4,7 +4,6 @@ import type { CeoDashboardDto } from '@shared/api/types';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import { format } from 'date-fns';
 
 interface Props { data: CeoDashboardDto; t: (k: string) => string }
 
@@ -15,9 +14,7 @@ export function CeoDashboard({ data, t }: Props) {
   const s = data.summary;
   const metrics = data.salesMetrics?.monthly ?? data.salesMetrics?.weekly ?? data.salesMetrics?.daily ?? [];
   const performers = data.kpi?.topPerformers ?? [];
-  const lowPerformers = data.kpi?.lowPerformers ?? [];
   const riskUsers = data.riskZone?.users ?? [];
-  const alerts = data.ranking?.items ?? [];
 
   const kpis = [
     { label: t('dashboard.kpi.totalRevenue'), value: fmt(s?.factTotal ?? 0), delta: `${s?.completionPercent ?? 0}%`, trend: 'up' as const, icon: DollarSign, accent: 'success' as const },

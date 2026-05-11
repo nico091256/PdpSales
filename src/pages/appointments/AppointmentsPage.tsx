@@ -18,6 +18,7 @@ import {
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { isAxiosError } from 'axios';
 import type { AppointmentStatus } from '@shared/api/types';
 
 const columns: { status: AppointmentStatus; label: string; color: string }[] = [
@@ -50,6 +51,14 @@ export default function AppointmentsPage() {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast.success('Appointment approved');
     },
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        const detail = (error.response?.data as { detail?: string })?.detail || error.message;
+        toast.error(`Approval failed: ${detail}`);
+      } else {
+        toast.error('Approval failed: Unexpected error');
+      }
+    }
   });
 
   const rejectMutation = useMutation({
@@ -58,6 +67,14 @@ export default function AppointmentsPage() {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       toast.success('Appointment rejected');
     },
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        const detail = (error.response?.data as { detail?: string })?.detail || error.message;
+        toast.error(`Rejection failed: ${detail}`);
+      } else {
+        toast.error('Rejection failed: Unexpected error');
+      }
+    }
   });
 
   const handleExport = () => {
@@ -76,14 +93,17 @@ export default function AppointmentsPage() {
     
     const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `appointments_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `appointments_${format(new Date(), 'yyyy-MM-dd')}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    // Release the object URL to free memory — without this the blob persists
+    // in memory until the page is unloaded.
+    URL.revokeObjectURL(url);
     toast.success('Appointments exported successfully');
   };
 

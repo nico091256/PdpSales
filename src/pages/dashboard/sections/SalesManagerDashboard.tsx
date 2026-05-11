@@ -76,7 +76,7 @@ export function SalesManagerDashboard({ data, t }: Props) {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 10 }} dy={8} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-muted)', fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} width={48} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', borderRadius: '10px', fontSize: '12px' }} formatter={(v: number) => fmt(v)} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', borderRadius: '10px', fontSize: '12px' }} formatter={(v) => [fmt(Number(v)), '']} />
                   <Area type="monotone" dataKey="value" stroke="var(--color-accent)" strokeWidth={2} fill="url(#sm-trend)" />
                 </AreaChart>
               </ResponsiveContainer>

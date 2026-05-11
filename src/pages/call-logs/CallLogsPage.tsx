@@ -19,7 +19,9 @@ import {
 import { cn } from '@shared/lib/utils';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { isAxiosError } from 'axios';
 import { KpiCard } from '@shared/ui/KpiCard';
+import type { LogCallRequest } from '@shared/api/types';
 
 export default function CallLogsPage() {
   const queryClient = useQueryClient();
@@ -46,10 +48,15 @@ export default function CallLogsPage() {
       setIsLogging(false);
       setForm({ phone: '', note: '', outcome: 'Connected', meetingRequested: false });
     },
-    onError: (error: any) => {
-      const status = error.response?.status;
-      const detail = error.response?.data?.detail || error.response?.data?.message || error.message;
-      toast.error(`${status ? `[${status}] ` : ''}${detail || 'Failed to log call'}`);
+    onError: (error: unknown) => {
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+        const body = error.response?.data as { detail?: string; message?: string } | undefined;
+        const detail = body?.detail ?? body?.message ?? error.message;
+        toast.error(`${status ? `[${status}] ` : ''}${detail || 'Failed to log call'}`);
+      } else {
+        toast.error('Failed to log call: Kutilmagan xato');
+      }
     }
   });
 
@@ -243,7 +250,7 @@ export default function CallLogsPage() {
                </button>
             </div>
             
-            <form onSubmit={(e) => { e.preventDefault(); logMutation.mutate(form as any); }} className="p-6 space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); logMutation.mutate(form as LogCallRequest); }} className="p-6 space-y-4">
                <div>
                   <label className="label-eyebrow mb-1.5 block">Phone Number</label>
                   <div className="glass px-4 py-2.5 rounded-xl flex items-center gap-3">
